@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air-e - Panel PRST</title>
+    <link rel="icon" type="image/png" href="./Images/IconoAir-e.webp">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="Css/prst.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Header/Navbar combinado -->
+<header class="navbar navbar-expand-lg navbar-light bg-white shadow p-3">
+    <div class="container-fluid">
+        <!-- Logo y título -->
+        <div class="header-logo navbar-brand">
+            <img src="./Images/IconoAir-e.webp" alt="Air-e Logo" id="Logoair-e">
+            <h1 class="d-inline-block ms-2">Air-e - Panel PRST</h1>
+        </div>
+        
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+            <!-- Botones de acciones -->
+            <div class="header-actions d-flex align-items-center">
+                <div class="dropdown me-2">
+                    <button class="btn btn-dark position-relative" id="notifications-button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge d-none" id="notification-badge">0</span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end notifications-dropdown" id="notifications-list">
+                        <div class="dropdown-item text-center">No tienes notificaciones</div>
+                    </div>
+                </div>
+                <button class="btn btn-dark me-2" id="profile-button">
+                    <i class="fas fa-user"></i>
+                    <span id="user-name">Usuario</span>
+                </button>
+                <button class="btn btn-danger" id="logout-button">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+    <!-- Contenido principal -->
+    <div class="container-fluid main-content">
+        <!-- Vista principal -->
+        <div class="view" id="main-view">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Proyectos</h5>
+                            <button class="btn btn-primary" id="new-project-button">
+                                <i class="fas fa-plus"></i> Nuevo Proyecto
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <!-- Add this filter section above the projects table -->
+<div class="row mb-3">
+    <div class="col-md-3 mb-2">
+        <input type="text" class="form-control" id="filterNombre" placeholder="Filtrar por nombre">
+    </div>
+    <div class="col-md-3 mb-2">
+        <select class="form-select" id="filterFecha">
+            <option value="">Todas las fechas</option>
+            <!-- Se llenará dinámicamente -->
+        </select>
+    </div>
+    <div class="col-md-3 mb-2">
+        <select class="form-select" id="filterEstado">
+            <option value="">Todos los estados</option>
+            <option value="Nuevo">Nuevo</option>
+            <option value="En Revisión por Ejecutiva">En Revisión</option>
+            <option value="En Gestión">En Gestión</option>
+            <option value="Documentación Errada">Documentación Errada</option>
+            <option value="Finalizado">Finalizado</option>
+        </select>
+    </div>
+    <div class="col-md-3 mb-2">
+        <button class="btn btn-primary w-100" id="applyFilters">
+            <i class="fas fa-filter"></i> Aplicar Filtros
+        </button>
+    </div>
+</div>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>OT AIR-E</th>
+                                            <th>Nombre del Proyecto</th>
+                                            <th>Ubicación</th>
+                                            <th>Fecha Creación</th>
+                                            <th>Estado</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="projects-table-body">
+                                        <tr>
+                                            <td colspan="6" class="text-center">Cargando proyectos...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista de formulario de proyecto -->
+        <div class="view d-none" id="project-form-view">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0" id="project-form-title">Nuevo Proyecto</h5>
+                            <button class="btn btn-secondary" id="back-to-main-button">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning d-none" id="ejecutiva-observations-alert"></div>
+                            
+                            <form id="project-form">
+                                <input type="hidden" id="project-id">
+                                
+                                <h6 class="mb-3">Parte 1: Documentación</h6>
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="project-kmz" class="form-label">Archivo KMZ</label>
+                                            <input type="file" class="form-control" id="project-kmz" accept=".kmz">
+                                            <div class="form-text">Archivo KMZ del proyecto</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="project-dwg" class="form-label">Plano DWG/PDF</label>
+                                            <input type="file" class="form-control" id="project-dwg" accept=".dwg, .pdf">
+                                            <div class="form-text">Archivo DWG/PDF del plano</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="project-registro" class="form-label">Registro Fotográfico</label>
+                                            <input type="file" class="form-control" id="project-registro" accept=".zip, .xlsx, .xls">
+                                            <div class="form-text">Archivo ZIP o Excel con registro fotográfico</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="project-matricula" class="form-label">Matrícula Profesional (PDF)</label>
+                                            <input type="file" class="form-control" id="project-matricula" accept=".pdf">
+                                            <div class="form-text">Matrícula profesional del ingeniero</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="project-cc" class="form-label">Cédula (PDF)</label>
+                                            <input type="file" class="form-control" id="project-cc" accept=".pdf">
+                                            <div class="form-text">Cédula de ciudadanía</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="project-formulario" class="form-label">Formulario de Caracterización (Excel)</label>
+                                            <input type="file" class="form-control" id="project-formulario" accept=".xlsx,.xls">
+                                            <div class="form-text">Formulario de caracterización en Excel</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr>
+                                
+                                <h6 class="mb-3">Parte 2: Información</h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-name" class="form-label">Nombre del Proyecto *</label>
+                                            <input type="text" class="form-control" id="project-name" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-posts" class="form-label">Número de Postes *</label>
+                                            <input type="number" class="form-control" id="project-posts" min="1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-address-start" class="form-label">Dirección Inicial *</label>
+                                            <input type="text" class="form-control" id="project-address-start" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-address-end" class="form-label">Dirección Final *</label>
+                                            <input type="text" class="form-control" id="project-address-end" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- En la sección de Municipio y Departamento -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="project-department" class="form-label">Departamento *</label>
+            <select class="form-select" id="project-department" required>
+                <option value="">Seleccione un departamento</option>
+                <option value="Atlántico">Atlántico</option>
+                <option value="La Guajira">La Guajira</option>
+                <option value="Magdalena">Magdalena</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="form-group">
+            <label for="project-municipality" class="form-label">Municipio *</label>
+            <select class="form-select" id="project-municipality" required>
+                <option value="">Primero seleccione un departamento</option>
+            </select>
+        </div>
+    </div>
+</div>
+                                
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="project-neighborhood" class="form-label">Barrios (Opcional)</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="project-neighborhood">
+                                                <button type="button" class="btn btn-primary" id="add-neighborhood-button">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                            <div class="form-text">Puedes agregar múltiples barrios</div>
+                                            
+                                            <div class="neighborhoods-container">
+                                                <div class="neighborhoods-list" id="neighborhoods-list"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-start-date" class="form-label">Fecha de Inicio *</label>
+                                            <input type="date" class="form-control" id="project-start-date" required>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-end-date" class="form-label">Fecha Fin *</label>
+                                            <input type="date" class="form-control" id="project-end-date" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-connection" class="form-label">Punto de Conexión Eléctrico *</label>
+                                            <!-- Select dropdown for Sí or No -->
+                                            <select id="project-connection" class="form-control" required onchange="updateConnectionValue()">
+                                                <option value="" disabled selected>Seleccione</option>
+                                                <option value="Sí">Sí</option>
+                                                <option value="No">No</option>
+                                            </select>
+                                            <div class="form-text">Seleccione si tiene un punto de conexión eléctrico.</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <script>
+                                        function updateConnectionValue() {
+                                            // Get the selected option from the select dropdown
+                                            const selectedOption = document.getElementById('project-connection').value;
+                                            
+                                            // Update the profile value with the selected option (this could be displayed elsewhere)
+                                            document.getElementById('detail-project-connection').textContent = selectedOption;
+                                        }
+                                    </script>
+                                    
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="project-observations" class="form-label">Observaciones (Opcional)</label>
+                                            <textarea class="form-control" id="project-observations" rows="3" placeholder="Si tiene OT propia, ingrésela aquí junto a sus observaciones adicionales"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row mt-4">
+                                    <div class="col-12 text-end">
+                                        <button type="button" class="btn btn-secondary me-2" id="cancel-project-button">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Guardar Proyecto</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista de perfil -->
+        <div class="view d-none" id="profile-view">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Mi Perfil</h5>
+                            <button class="btn btn-secondary" id="back-to-main-button-profile">
+                                <i class="fas fa-arrow-left"></i> Volver
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="profile-info">
+                                <div class="profile-item">
+                                    <div class="profile-label">Nombre Completo</div>
+                                    <div class="profile-value" id="profile-name">Nombre Apellido</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Correo Electrónico</div>
+                                    <div class="profile-value" id="profile-email">correo@ejemplo.com</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Rol</div>
+                                    <div class="profile-value" id="profile-role">PRST</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Nombre PRST</div>
+                                    <div class="profile-value" id="profile-prst-name">Nombre PRST</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Cédula</div>
+                                    <div class="profile-value" id="profile-id">1234567890</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Matrícula Profesional</div>
+                                    <div class="profile-value" id="profile-mp">MP-12345</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Dirección</div>
+                                    <div class="profile-value" id="profile-address">Calle 123 #45-67</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Barrio</div>
+                                    <div class="profile-value" id="profile-neighborhood">Centro</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Ciudad</div>
+                                    <div class="profile-value" id="profile-city">Barranquilla</div>
+                                </div>
+                                <div class="profile-item">
+                                    <div class="profile-label">Teléfono</div>
+                                    <div class="profile-value" id="profile-phone">3001234567</div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-4">
+                                <div class="col-12 text-end">
+                                    <button type="button" class="btn btn-primary" id="change-password-button">
+                                        <i class="fas fa-key"></i> Cambiar Contraseña
+                                    </button>
+                                    <button type="button" class="btn btn-secondary" id="back-to-main-button-2">
+                                        <i class="fas fa-arrow-left"></i> Volver
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pie de página -->
+  <footer class="bg-white shadow p-3 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 col-sm-12 mb-3 text-center text-md-start">
+          <img src="./Images/IconoAir-e.webp" alt="Ícono Air-e" width="80">
+          <p><strong>Dirección:</strong><br>
+          Cra 57 No 99A - 65<br>
+          Torres del Atlántico.<br>
+          Barranquilla, Atlántico.</p>
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+          <p><strong class="text-primary">Líneas de atención:</strong><br>
+          Fijo o celular: 115<br>
+          Línea nacional gratuita: 018000 930 135<br>
+          PBX Atlántico: (605) 361 1000<br>
+          PBX Magdalena: (605) 423 7097<br>
+          PBX Guajira: (605) 727 9814</p>
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center text-md-end">
+          <p><strong class="text-primary">Síguenos</strong></p>
+          <div class="social-icons">
+            <a href="#"><i class="bi bi-twitter-x"></i></a>
+            <a href="#"><i class="bi bi-youtube"></i></a>
+            <a href="#"><i class="bi bi-facebook"></i></a>
+          </div>
+          <p class="politicas-link"><a href="#">Políticas tratamiento de datos »</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-text text-center">
+      <p>&copy; 2025 Air-e Censo. Air-e intervenida 2024.</p>
+    </div>
+  </footer>
+
+    <!-- Modal de Detalle de Proyecto -->
+    <div class="modal fade" id="project-detail-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalle del Proyecto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">OT AIR-E</div>
+                                <div class="profile-value" id="detail-project-id"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Nombre del Proyecto</div>
+                                <div class="profile-value" id="detail-project-name"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Creador</div>
+                                <div class="profile-value" id="detail-project-creator"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Estado</div>
+                                <div class="profile-value" id="detail-project-status"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Fecha Creación</div>
+                                <div class="profile-value" id="detail-project-creation-date"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Fecha Inicio</div>
+                                <div class="profile-value" id="detail-project-start-date"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Fecha Fin</div>
+                                <div class="profile-value" id="detail-project-end-date"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Dirección Inicial</div>
+                                <div class="profile-value" id="detail-project-address-start"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Dirección Final</div>
+                                <div class="profile-value" id="detail-project-address-end"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="profile-item">
+                                <div class="profile-label">Barrios</div>
+                                <div class="profile-value" id="detail-project-neighborhoods"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Municipio</div>
+                                <div class="profile-value" id="detail-project-municipality"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Departamento</div>
+                                <div class="profile-value" id="detail-project-department"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Número de Postes</div>
+                                <div class="profile-value" id="detail-project-posts"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="profile-item">
+                                <div class="profile-label">Punto de Conexión</div>
+                                <div class="profile-value" id="detail-project-connection"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="profile-item">
+                                <div class="profile-label">Observaciones</div>
+                                <div class="profile-value" id="detail-project-observations"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6 class="mb-3">Documentos</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">KMZ</div>
+                                <div class="profile-value">
+                                    <a href="#" id="detail-kmz-link" target="_blank">Ver documento</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Plano DWG</div>
+                                <div class="profile-value">
+                                    <a href="#" id="detail-dwg-link" target="_blank">Ver documento</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Registro Fotográfico</div>
+                                <div class="profile-value">
+                                    <a href="#" id="detail-registro-link" target="_blank">Ver documento</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Matrícula Profesional</div>
+                                <div class="profile-value">
+                                    <a href="#" id="detail-matricula-link" target="_blank">Ver documento</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Cédula</div>
+                                <div class="profile-value">
+                                    <a href="#" id="detail-cc-link" target="_blank">Ver documento</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="profile-item">
+                                <div class="profile-label">Formulario</div>
+                                <div class="profile-value">
+                                    <a href="#" id="detail-formulario-link" target="_blank">Ver documento</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-none" id="detail-ejecutiva-observations-container">
+                        <hr>
+                        <h6 class="mb-3">Observaciones de Ejecutiva</h6>
+                        <div class="alert alert-warning">
+                            <div id="detail-ejecutiva-observations"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-none" id="detail-analista-observations-container">
+                        <hr>
+                        <h6 class="mb-3">Observaciones de Analista</h6>
+                        <div class="alert alert-warning">
+                            <div id="detail-analista-observations"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Notificaciones -->
+    <div class="modal fade" id="notifications-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Notificaciones</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                  <button data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body notifications-modal-body" id="notifications-modal-body">
+                    <p class="text-center">Cargando notificaciones...</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="mark-all-read">Marcar todas como leídas</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cambio de Contraseña -->
+    <div class="modal fade" id="change-password-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Cambiar Contraseña</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="change-password-form">
+                        <div class="form-group mb-3">
+                            <label for="current-password" class="form-label">Contraseña Actual</label>
+                            <input type="password" class="form-control" id="current-password" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="new-password" class="form-label">Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="new-password" required>
+                        </div>
+                        <div class="form-group mb-3">
+                            <label for="confirm-password" class="form-label">Confirmar Nueva Contraseña</label>
+                            <input type="password" class="form-control" id="confirm-password" required>
+                        </div>
+                        <div class="text-end">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Cambiar Contraseña</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- JSZip for KMZ processing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <!-- Storage JS -->
+    <script src="Js/storage.js"></script>
+    <!-- KML Handler JS -->
+    <script src="Js/kml-handler.js"></script>
+    <!-- PRST JS -->
+    <script src="Js/prst.js"></script>
+    
+<div class="mb-3">
+  <label class="form-label">Nombre PRST:</label>
+  <p id="profile-prst-name" class="form-control-static border p-2 rounded">-</p>
+</div>
+<div class="mb-3">
+  <label class="form-label">Nombre Corto PRST:</label>
+  <p id="profile-prst-short" class="form-control-static border p-2 rounded">-</p>
+</div>
+</body>
+</html>
+

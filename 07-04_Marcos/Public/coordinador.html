@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Coordinador - Air-e Censo</title>
+  <link rel="icon" type="image/png" href="./Images/IconoAir-e.webp">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="./Css/coordinador.css">
+</head>
+<body>
+  <!-- Header/Navbar combinado -->
+  <header class="navbar navbar-expand-lg navbar-light bg-white shadow p-3">
+    <div class="container-fluid">
+      <!-- Logo y título -->
+      <div class="header-logo navbar-brand">
+        <img src="./Images/IconoAir-e.webp" alt="Air-e Logo" id="Logoair-e">
+        <h1 class="d-inline-block ms-2">Air-e - Panel Coordinador</h1>
+      </div>
+      
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <!-- Botones de acciones -->
+        <div class="header-actions d-flex align-items-center">
+          <div class="dropdown me-2">
+            <button class="btn btn-dark position-relative" id="notifications-button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bell"></i>
+              <span class="notification-count" id="notificationCount">0</span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationsDropdown">
+              <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                <h6 class="mb-0">Notificaciones</h6>
+                <button class="btn btn-sm btn-link text-decoration-none" id="markAllAsRead">Marcar todas como leídas</button>
+              </div>
+              <div id="notificationsList">
+                <!-- Se llenará dinámicamente -->
+                <div class="notification-empty">
+                  <i class="bi bi-bell-slash"></i>
+                  <p>No tienes notificaciones</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="dropdown me-2">
+            <button class="btn btn-dark dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-person-circle"></i>
+              <span id="nombreUsuario">Usuario</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+              <li><a class="dropdown-item" href="#" id="navPerfil"><i class="bi bi-person"></i> Mi Perfil</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="#" id="cerrarSesion"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="container mt-4">
+    <!-- Sección de bienvenida -->
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h2 class="card-title">Bienvenido, <span id="nombreCoordinador">Coordinador</span></h2>
+            <p class="card-text">Tipo: <span id="tipoCoordinador">Operativo</span></p>
+            <p class="card-text">Panel de control para la gestión y asignación de proyectos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navegación de pestañas -->
+    <ul class="nav nav-tabs mb-4" id="coordinadorTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="porAsignar-tab" data-bs-toggle="tab" data-bs-target="#porAsignar" type="button" role="tab" aria-controls="porAsignar" aria-selected="true">Por Asignar</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="enGestion-tab" data-bs-toggle="tab" data-bs-target="#enGestion" type="button" role="tab" aria-controls="enGestion" aria-selected="false">En Gestión</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="verificados-tab" data-bs-toggle="tab" data-bs-target="#verificados" type="button" role="tab" aria-controls="verificados" aria-selected="false">Por Análisis de Inspección</button>
+      </li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="finalizados-tab" data-bs-toggle="tab" data-bs-target="#finalizados" type="button" role="tab" aria-controls="finalizados" aria-selected="false">Finalizados</button>
+      </li>
+    </ul>
+
+    <!-- Contenido de las pestañas -->
+    <div class="tab-content" id="coordinadorTabsContent">
+      <!-- Pestaña: Por Asignar -->
+      <div class="tab-pane fade show active" id="porAsignar" role="tabpanel" aria-labelledby="porAsignar-tab">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Proyectos por Asignar</h5>
+            <div class="input-group" style="max-width: 300px;">
+              <input type="text" class="form-control" placeholder="Buscar proyecto..." id="buscarProyectoAsignar">
+              <button class="btn btn-outline-secondary" type="button" id="btnBuscarAsignar">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+          <!-- Add this filter section above each table in the tabs -->
+          <!-- For "Por Asignar" tab -->
+          <div class="row mb-3">
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterNombreAsignar" placeholder="Filtrar por nombre">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterPRSTAsignar" placeholder="Filtrar por PRST">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterFechaAsignar">
+                      <option value="">Todas las fechas</option>
+                      <!-- Se llenará dinámicamente -->
+                  </select>
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterEstadoAsignar">
+                      <option value="">Todos los estados</option>
+                      <option value="En Asignación">En Asignación</option>
+                  </select>
+              </div>
+          </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>OT AIR-E</th>
+                    <th>Nombre del Proyecto</th>
+                    <th>PRST</th>
+                    <th>Municipio</th>
+                    <th>Departamento</th>
+                    <th>Fecha Recepción</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaProyectosPorAsignar">
+                  <!-- Se llenará dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña: En Gestión -->
+      <div class="tab-pane fade" id="enGestion" role="tabpanel" aria-labelledby="enGestion-tab">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Proyectos en Gestión</h5>
+            <div class="input-group" style="max-width: 300px;">
+              <input type="text" class="form-control" placeholder="Buscar proyecto..." id="buscarProyectoGestion">
+              <button class="btn btn-outline-secondary" type="button" id="btnBuscarGestion">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+          <!-- For "En Gestión" tab -->
+          <div class="row mb-3">
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterNombreGestion" placeholder="Filtrar por nombre">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterPRSTGestion" placeholder="Filtrar por PRST">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterFechaGestion">
+                      <option value="">Todas las fechas</option>
+                      <!-- Se llenará dinámicamente -->
+                  </select>
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterEstadoGestion">
+                      <option value="">Todos los estados</option>
+                      <option value="Asignado">Asignado</option>
+                      <option value="En Gestion por Analista">En Gestión por Analista</option>
+                      <option value="En Gestion por Brigada">En Gestión por Brigada</option>
+                  </select>
+              </div>
+          </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>OT AIR-E</th>
+                    <th>Nombre del Proyecto</th>
+                    <th>PRST</th>
+                    <th>Asignado a</th>
+                    <th>Municipio</th>
+                    <th>Departamento</th>
+                    <th>Fecha Asignación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaProyectosEnGestion">
+                  <!-- Se llenará dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña: Verificados -->
+      <div class="tab-pane fade" id="verificados" role="tabpanel" aria-labelledby="verificados-tab">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Proyectos Verificados</h5>
+            <div class="input-group" style="max-width: 300px;">
+              <input type="text" class="form-control" placeholder="Buscar proyecto..." id="buscarProyectoVerificado">
+              <button class="btn btn-outline-secondary" type="button" id="btnBuscarVerificado">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+          <!-- For "Verificados" tab -->
+          <div class="row mb-3">
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterNombreVerificados" placeholder="Filtrar por nombre">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterPRSTVerificados" placeholder="Filtrar por PRST">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterFechaVerificados">
+                      <option value="">Todas las fechas</option>
+                      <!-- Se llenará dinámicamente -->
+                  </select>
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterEstadoVerificados">
+                      <option value="">Todos los estados</option>
+                      <option value="En Revision de Verificacion">En Revisión de Verificación</option>
+                  </select>
+              </div>
+          </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>OT AIR-E</th>
+                    <th>Nombre del Proyecto</th>
+                    <th>PRST</th>
+                    <th>Verificado por</th>
+                    <th>Fecha Verificación</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaProyectosVerificados">
+                  <!-- Se llenará dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pestaña: Finalizados -->
+      <div class="tab-pane fade" id="finalizados" role="tabpanel" aria-labelledby="finalizados-tab">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Proyectos Finalizados</h5>
+            <div class="input-group" style="max-width: 300px;">
+              <input type="text" class="form-control" placeholder="Buscar proyecto..." id="buscarProyectoFinalizado">
+              <button class="btn btn-outline-secondary" type="button" id="btnBuscarFinalizado">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+          <!-- For "Finalizados" tab -->
+          <div class="row mb-3">
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterNombreFinalizados" placeholder="Filtrar por nombre">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <input type="text" class="form-control" id="filterPRSTFinalizados" placeholder="Filtrar por PRST">
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterFechaFinalizados">
+                      <option value="">Todas las fechas</option>
+                      <!-- Se llenará dinámicamente -->
+                  </select>
+              </div>
+              <div class="col-md-3 mb-2">
+                  <select class="form-select" id="filterEstadoFinalizados">
+                      <option value="">Todos los estados</option>
+                      <option value="Verificado">Verificado</option>
+                      <option value="Finalizado">Finalizado</option>
+                      <option value="Generacion de Informe">Generación de Informe</option>
+                  </select>
+              </div>
+          </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>OT AIR-E</th>
+                    <th>Nombre del Proyecto</th>
+                    <th>PRST</th>
+                    <th>Fecha Finalización</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaProyectosFinalizados">
+                  <!-- Se llenará dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Perfil (oculta por defecto) -->
+    <div id="seccionPerfil" class="row mt-4" style="display: none;">
+      <div class="col-md-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>Mi Perfil</h3>
+          <button class="btn btn-secondary" id="btnVolverDesdePerfil">
+            <i class="bi bi-arrow-left"></i> Volver
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4 text-center mb-4">
+                <div class="avatar-container mb-3">
+                  <i class="bi bi-person-circle" style="font-size: 6rem;"></i>
+                </div>
+                <h4 id="perfilNombre">Nombre del Usuario</h4>
+                <p class="text-muted" id="perfilRol">Coordinador</p>
+                <p class="text-muted" id="perfilTipo">Tipo: Operativo</p>
+              </div>
+              <div class="col-md-8">
+                <div class="row">
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Usuario:</label>
+                    <p id="perfilUsuario" class="form-control-static border p-2 rounded">-</p>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Correo Electrónico:</label>
+                    <p id="perfilCorreo" class="form-control-static border p-2 rounded">-</p>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Departamento:</label>
+                    <p id="perfilDepartamento" class="form-control-static border p-2 rounded">-</p>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label class="form-label">Cargo:</label>
+                    <p id="perfilCargo" class="form-control-static border p-2 rounded">-</p>
+                  </div>
+                </div>
+                <hr>
+                <h5>Cambiar Contraseña</h5>
+                <form id="formCambiarPassword">
+                  <div class="mb-3">
+                    <label for="passwordActual" class="form-label">Contraseña Actual</label>
+                    <input type="password" id="passwordActual" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label for="passwordNueva" class="form-label">Nueva Contraseña</label>
+                    <input type="password" id="passwordNueva" class="form-control">
+                  </div>
+                  <div class="mb-3">
+                    <label for="passwordConfirmar" class="form-label">Confirmar Contraseña</label>
+                    <input type="password" id="passwordConfirmar" class="form-control">
+                  </div>
+                  <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-key"></i> Actualizar Contraseña
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para asignar proyecto -->
+  <div class="modal fade" id="modalAsignarProyecto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Asignar Proyecto</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="proyectoIdAsignar">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6>Información del Proyecto</h6>
+              <table class="table table-sm">
+                <tr>
+                  <th>OT AIR-E:</th>
+                  <td id="asignarProyectoId"></td>
+                </tr>
+                <tr>
+                  <th>Nombre del Proyecto:</th>
+                  <td id="asignarProyectoNombre"></td>
+                </tr>
+                <tr>
+                  <th>PRST:</th>
+                  <td id="asignarProyectoPRST"></td>
+                </tr>
+                <tr>
+                  <th>Municipio:</th>
+                  <td id="asignarProyectoMunicipio"></td>
+                </tr>
+                <tr>
+                  <th>Departamento:</th>
+                  <td id="asignarProyectoDepartamento"></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h6>Asignar a</h6>
+              <div class="mb-3">
+                <label for="tipoAsignacion" class="form-label">Tipo de Asignación</label>
+                <select class="form-select" id="tipoAsignacion">
+                  <option value="analista">Analista</option>
+                  <option value="brigada">Brigada</option>
+                </select>
+              </div>
+              <div id="contenedorAnalistas">
+                <div class="mb-3">
+                  <label for="analistaAsignado" class="form-label">Seleccionar Analista</label>
+                  <select class="form-select" id="analistaAsignado">
+                    <option value="">Seleccione un analista</option>
+                    <!-- Se llenará dinámicamente -->
+                  </select>
+                </div>
+              </div>
+              <div id="contenedorBrigadas" style="display: none;">
+                <div class="mb-3">
+                  <label for="brigadaAsignada" class="form-label">Seleccionar Brigada</label>
+                  <select class="form-select" id="brigadaAsignada">
+                    <option value="">Seleccione una brigada</option>
+                    <!-- Se llenará dinámicamente -->
+                  </select>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="comentarioAsignacion" class="form-label">Comentarios (opcional)</label>
+                <textarea class="form-control" id="comentarioAsignacion" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmarAsignacion">Asignar Proyecto</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para revisar verificación -->
+  <div class="modal fade" id="modalRevisarVerificacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Revisar Verificación</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="proyectoIdVerificar">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h6>Información del Proyecto</h6>
+              <table class="table table-sm">
+                <tr>
+                  <th>OT AIR-E:</th>
+                  <td id="verificarProyectoId"></td>
+                </tr>
+                <tr>
+                  <th>Nombre del Proyecto:</th>
+                  <td id="verificarProyectoNombre"></td>
+                </tr>
+                <tr>
+                  <th>PRST:</th>
+                  <td id="verificarProyectoPRST"></td>
+                </tr>
+                <tr>
+                  <th>Asignado a:</th>
+                  <td id="verificarProyectoAsignado"></td>
+                </tr>
+                <tr>
+                  <th>Estado:</th>
+                  <td id="verificarProyectoEstado"></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h6>Observaciones del Analista/Brigada</h6>
+              <div class="border p-3 mb-3 rounded" id="verificarObservaciones">
+                <!-- Se llenará dinámicamente -->
+              </div>
+            </div>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-12">
+              <h6>Documentos Verificados</h6>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Documento</th>
+                      <th>Estado</th>
+                      <th>Observaciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaDocumentosVerificados">
+                    <!-- Se llenará dinámicamente -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <div class="mb-3">
+                <label for="decisionVerificacion" class="form-label">Decisión</label>
+                <select class="form-select" id="decisionVerificacion">
+                  <option value="aprobar">Aprobar Verificación</option>
+                  <option value="rechazar">Rechazar Verificación</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="comentarioVerificacion" class="form-label">Comentarios</label>
+                <textarea class="form-control" id="comentarioVerificacion" rows="3"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmarVerificacion">Confirmar Decisión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver detalles del proyecto -->
+  <div class="modal fade" id="modalDetalleProyecto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Detalle del Proyecto</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Información General</h6>
+              <table class="table table-sm">
+                <tr>
+                  <th>OT AIR-E:</th>
+                  <td id="detalleProyectoId"></td>
+                </tr>
+                <tr>
+                  <th>Nombre del Proyecto:</th>
+                  <td id="detalleProyectoNombre"></td>
+                </tr>
+                <tr>
+                  <th>PRST:</th>
+                  <td id="detalleProyectoPRST"></td>
+                </tr>
+                <tr>
+                  <th>Dirección Inicial:</th>
+                  <td id="detalleProyectoDireccionInicial"></td>
+                </tr>
+                <tr>
+                  <th>Dirección Final:</th>
+                  <td id="detalleProyectoDireccionFinal"></td>
+                </tr>
+                <tr>
+                  <th>Barrios:</th>
+                  <td id="detalleProyectoBarrios"></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h6>Detalles Adicionales</h6>
+              <table class="table table-sm">
+                <tr>
+                  <th>Municipio:</th>
+                  <td id="detalleProyectoMunicipio"></td>
+                </tr>
+                <tr>
+                  <th>Departamento:</th>
+                  <td id="detalleProyectoDepartamento"></td>
+                </tr>
+                <tr>
+                  <th>Número de Postes:</th>
+                  <td id="detalleProyectoNumeroPostes"></td>
+                </tr>
+                <tr>
+                  <th>Fecha Inicio:</th>
+                  <td id="detalleProyectoFechaInicio"></td>
+                </tr>
+                <tr>
+                  <th>Fecha Fin:</th>
+                  <td id="detalleProyectoFechaFin"></td>
+                </tr>
+                <tr>
+                  <th>Punto de Conexión Eléctrico:</th>
+                  <td id="detalleProyectoPuntoConexion"></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <h6>Estado del Proyecto</h6>
+              <table class="table table-sm">
+                <tr>
+                  <th>Estado Actual:</th>
+                  <td id="detalleProyectoEstado"></td>
+                </tr>
+                <tr>
+                  <th>Asignado a:</th>
+                  <td id="detalleProyectoAsignado"></td>
+                </tr>
+                <tr>
+                  <th>Fecha de Asignación:</th>
+                  <td id="detalleProyectoFechaAsignacion"></td>
+                </tr>
+                <tr>
+                  <th>Observaciones:</th>
+                  <td id="detalleProyectoObservaciones"></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <h6>Documentos</h6>
+              <div class="table-responsive">
+                <table class="table table-bordered">
+                  <thead>
+                    <tr>
+                      <th>Documento</th>
+                      <th>Estado</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tablaDocumentosDetalle">
+                    <!-- Se llenará dinámicamente -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-info" id="btnVerHistorial">Ver Historial</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para ver historial del proyecto -->
+  <div class="modal fade" id="modalHistorialProyecto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Historial del Proyecto</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Usuario</th>
+                  <th>Rol</th>
+                  <th>Comentario</th>
+                </tr>
+              </thead>
+              <tbody id="tablaHistorialProyecto">
+                <!-- Se llenará dinámicamente -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </button>  data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para mensajes -->
+  <div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="tituloModalMensaje">Mensaje</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="textoModalMensaje"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div class="modal fade" id="modalConfirmacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-warning text-dark">
+          <h5 class="modal-title">Confirmar Acción</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="textoModalConfirmacion">¿Está seguro de que desea realizar esta acción?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnConfirmarAccion">Confirmar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pie de página -->
+  <footer class="bg-white shadow p-3 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 col-sm-12 mb-3 text-center text-md-start">
+          <img src="./Images/IconoAir-e.webp" alt="Ícono Air-e" width="80">
+          <p><strong>Dirección:</strong><br>
+          Cra 57 No 99A - 65<br>
+          Torres del Atlántico.<br>
+          Barranquilla, Atlántico.</p>
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+          <p><strong class="text-primary">Líneas de atención:</strong><br>
+          Fijo o celular: 115<br>
+          Línea nacional gratuita: 018000 930 135<br>
+          PBX Atlántico: (605) 361 1000<br>
+          PBX Magdalena: (605) 423 7097<br>
+          PBX Guajira: (605) 727 9814</p>
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center text-md-end">
+          <p><strong class="text-primary">Síguenos</strong></p>
+          <div class="social-icons">
+            <a href="#"><i class="bi bi-twitter-x"></i></a>
+            <a href="#"><i class="bi bi-youtube"></i></a>
+            <a href="#"><i class="bi bi-facebook"></i></a>
+          </div>
+          <p class="politicas-link"><a href="#">Políticas tratamiento de datos »</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-text text-center">
+      <p>&copy; 2025 Air-e Censo. Air-e intervenida 2024.</p>
+    </div>
+  </footer>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./Js/storage.js"></script>
+  <script src="./Js/coordinador.js"></script>
+</body>
+</html>
+

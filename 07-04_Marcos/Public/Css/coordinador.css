@@ -1,0 +1,613 @@
+/* Estilos para el rol de Coordinador */
+
+/* Variables de colores */
+:root {
+  --primary-color: #0055b8;
+  --primary-dark: #004299;
+  --primary-light: #e6f0ff;
+  --secondary-color: #ff9900;
+  --secondary-dark: #cc7a00;
+  --secondary-light: #ffe6cc;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --gray-color: #6c757d;
+  --gray-light: #e9ecef;
+  --gray-dark: #495057;
+  --white: #ffffff;
+  --black: #000000;
+}
+
+/* Estilos generales */
+body {
+  font-family: "Roboto", sans-serif;
+  background-color: #f8f9fa;
+}
+
+.container-fluid {
+  padding: 0;
+}
+
+/* Header */
+.header {
+  background-color: #343a40;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.header-logo h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-actions .btn {
+  margin-left: 10px;
+}
+
+/* Estilos para las notificaciones */
+.notification-badge {
+  position: relative;
+  display: inline-block;
+}
+
+.notification-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-dropdown {
+  width: 350px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #e9ecef;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-item.unread {
+  background-color: #e8f4ff;
+}
+
+.notification-item .notification-time {
+  font-size: 12px;
+  color: #6c757d;
+}
+
+.notification-item .notification-title {
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.notification-item .notification-message {
+  font-size: 14px;
+  margin-bottom: 0;
+}
+
+.notification-empty {
+  padding: 20px;
+  text-align: center;
+  color: #6c757d;
+}
+
+/* Estilos para las pestañas */
+.nav-tabs .nav-link {
+  color: var(--gray-dark);
+  font-weight: 500;
+  border: 1px solid transparent;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: var(--gray-light);
+}
+
+.nav-tabs .nav-link.active {
+  color: var(--primary-color);
+  background-color: var(--white);
+  border-color: var(--gray-light) var(--gray-light) var(--white);
+  border-bottom: 2px solid var(--primary-color);
+}
+
+/* Estilos para las tablas */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table th {
+  background-color: var(--light-color);
+  font-weight: 600;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+/* Estilos para los botones */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+.btn-secondary {
+  background-color: var(--gray-color);
+  border-color: var(--gray-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--gray-dark);
+  border-color: var(--gray-dark);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.btn-warning {
+  background-color: var(--warning-color);
+  border-color: var(--warning-color);
+  color: var(--dark-color);
+}
+
+.btn-info {
+  background-color: var(--info-color);
+  border-color: var(--info-color);
+  color: var(--white);
+}
+
+/* Estilos para las tarjetas */
+.card {
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  background-color: var(--white);
+  border-bottom: 1px solid var(--gray-light);
+  padding: 1rem 1.25rem;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+/* Estilos para los modales */
+.modal-header {
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.modal-footer {
+  border-top: 1px solid var(--gray-light);
+}
+
+/* Estilos para el perfil */
+.avatar-container {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-light);
+  border-radius: 50%;
+  color: var(--primary-color);
+}
+
+/* Estilos para los formularios */
+.form-label {
+  font-weight: 500;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(0, 85, 184, 0.25);
+}
+
+/* Estilos para los badges */
+.badge {
+  padding: 0.35em 0.65em;
+  font-weight: 500;
+}
+
+.badge-success {
+  background-color: var(--success-color);
+  color: var(--white);
+}
+
+.badge-warning {
+  background-color: var(--warning-color);
+  color: var(--dark-color);
+}
+
+.badge-danger {
+  background-color: var(--danger-color);
+  color: var(--white);
+}
+
+.badge-info {
+  background-color: var(--info-color);
+  color: var(--white);
+}
+
+.badge-primary {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.badge-secondary {
+  background-color: var(--gray-color);
+  color: var(--white);
+}
+
+/* Estilos para el footer */
+.footer {
+  background-color: var(--white);
+  border-top: 1px solid var(--gray-light);
+  padding: 1.5rem 0;
+  margin-top: 2rem;
+}
+
+.footer-text {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+  .header-logo h1 {
+    font-size: 1.2rem;
+  }
+
+  .nav-tabs .nav-link {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
+
+  .card-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+
+  .table {
+    font-size: 0.875rem;
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .avatar-container {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Estilos específicos para el rol de coordinador */
+.project-card {
+  transition: transform 0.2s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+}
+
+.project-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.project-progress {
+  height: 8px;
+  margin-top: 10px;
+}
+
+.document-status-approved {
+  color: var(--success-color);
+}
+
+.document-status-rejected {
+  color: var(--danger-color);
+}
+
+.document-status-pending {
+  color: var(--warning-color);
+}
+
+/* Estilos para el historial */
+.timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.timeline-item {
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.timeline-item:before {
+  content: "";
+  position: absolute;
+  left: -30px;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background-color: var(--gray-light);
+}
+
+.timeline-item:after {
+  content: "";
+  position: absolute;
+  left: -36px;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--primary-color);
+}
+
+.timeline-date {
+  font-size: 0.875rem;
+  color: var(--gray-color);
+  margin-bottom: 5px;
+}
+
+.timeline-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.timeline-content {
+  background-color: var(--white);
+  padding: 15px;
+  border-radius: 0.25rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos para los iconos */
+.icon-lg {
+  font-size: 1.5rem;
+}
+
+.icon-sm {
+  font-size: 0.875rem;
+}
+
+/* Estilos para las alertas */
+.alert {
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.alert-success {
+  background-color: var(--success-color);
+  color: var(--white);
+}
+
+.alert-warning {
+  background-color: var(--warning-color);
+  color: var(--dark-color);
+}
+
+.alert-danger {
+  background-color: var(--danger-color);
+  color: var(--white);
+}
+
+.alert-info {
+  background-color: var(--info-color);
+  color: var(--white);
+}
+
+/* Estilos para los tooltips */
+.tooltip {
+  font-size: 0.875rem;
+}
+
+.tooltip-inner {
+  background-color: var(--dark-color);
+  padding: 0.5rem 1rem;
+}
+
+/* Estilos para los popovers */
+.popover {
+  font-size: 0.875rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.popover-header {
+  background-color: var(--light-color);
+  border-bottom: 1px solid var(--gray-light);
+  font-weight: 600;
+}
+
+.popover-body {
+  padding: 0.75rem 1rem;
+}
+
+/* Estilos para los spinners */
+.spinner-border {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-width: 0.2em;
+}
+
+.spinner-grow {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Estilos para las listas */
+.list-group-item {
+  padding: 0.75rem 1.25rem;
+  border: 1px solid var(--gray-light);
+}
+
+.list-group-item-action:hover {
+  background-color: var(--light-color);
+}
+
+.list-group-item.active {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+/* Estilos para los acordeones */
+.accordion-button {
+  padding: 1rem 1.25rem;
+  font-weight: 500;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.accordion-body {
+  padding: 1rem 1.25rem;
+}
+
+/* Estilos para las pestañas de navegación */
+.nav-pills .nav-link {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  font-weight: 500;
+}
+
+.nav-pills .nav-link.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+/* Estilos para los botones de grupo */
+.btn-group > .btn {
+  border-radius: 0;
+}
+
+.btn-group > .btn:first-child {
+  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;
+}
+
+.btn-group > .btn:last-child {
+  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+/* Estilos para los dropdowns */
+.dropdown-menu {
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1.5rem;
+}
+
+.dropdown-item:hover {
+  background-color: var(--light-color);
+}
+
+.dropdown-item.active {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+/* Estilos para los botones de cierre */
+.btn-close {
+  opacity: 0.5;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+.btn-close-white {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Estilos para los iconos de Bootstrap */
+.bi {
+  vertical-align: -0.125em;
+}
+
+/* Estilos para los logos */
+#Logoair-e {
+  height: 40px;
+}
+
+/* Estilos para el contenedor de notificaciones */
+#notificationsList {
+  max-height: 300px;
+  overflow-y: auto;
+}
+

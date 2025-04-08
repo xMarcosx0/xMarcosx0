@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración - Air-e Censo</title>
+  <link rel="icon" type="image/png" href="./Images/IconoAir-e.webp">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="./Css/header&footnote.css">
+  <link rel="stylesheet" href="./Css/admin.css">
+  <style>
+    /* Estilos para el sistema de notificaciones */
+    .notification-badge {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .notification-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notification-dropdown {
+      width: 350px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .notification-item {
+      padding: 10px 15px;
+      border-bottom: 1px solid #e9ecef;
+      cursor: pointer;
+    }
+    
+    .notification-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .notification-item.unread {
+      background-color: #e8f4ff;
+    }
+    
+    .notification-item .notification-time {
+      font-size: 12px;
+      color: #6c757d;
+    }
+    
+    .notification-item .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .notification-item .notification-message {
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+    
+    .notification-empty {
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+    }
+    
+    /* Estilos para el footer responsive */
+    @media (max-width: 768px) {
+      footer .container .row > div {
+        text-align: center !important;
+        margin-bottom: 20px;
+      }
+      
+      .social-icons {
+        justify-content: center;
+      }
+    }
+    
+    /* Estilos para las tablas */
+    .table-responsive {
+      overflow-x: auto;
+    }
+    
+    .table th {
+      white-space: nowrap;
+      background-color: #f8f9fa;
+    }
+    
+    .table-hover tbody tr:hover {
+      background-color: rgba(0, 123, 255, 0.05);
+    }
+    
+    .badge-estado {
+      font-size: 0.8rem;
+      padding: 0.35em 0.65em;
+    }
+    
+    .filtros-container {
+      background-color: #f8f9fa;
+      border-radius: 0.25rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Estilos para las solicitudes de contraseña */
+    .password-request-card {
+      border-left: 4px solid #0d6efd;
+      margin-bottom: 1rem;
+    }
+    
+    .password-request-card.pending {
+      border-left-color: #ffc107;
+    }
+    
+    .password-request-card.approved {
+      border-left-color: #198754;
+    }
+    
+    .password-request-card.rejected {
+      border-left-color: #dc3545;
+    }
+    
+    .password-request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 1rem;
+      background-color: rgba(0, 0, 0, 0.03);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+    
+    .password-request-body {
+      padding: 1rem;
+    }
+    
+    .password-request-footer {
+      padding: 0.75rem 1rem;
+      background-color: rgba(0, 0, 0, 0.03);
+      border-top: 1px solid rgba(0, 0, 0, 0.125);
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de navegación principal -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow p-3">
+    <div class="container">
+      <a class="navbar-brand" href="../index.html">
+        <img src="./Images/LogoAir-e.webp" alt="Logo" width="130">
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" id="navUsuarios">Usuarios</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="navProyectos">Proyectos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="navAsignaciones">Asignaciones</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="navSolicitudes">Solicitudes</a>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link notification-badge" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-bell-fill"></i>
+              <span class="notification-count" id="notificationCount">0</span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationsDropdown">
+              <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                <h6 class="mb-0">Notificaciones</h6>
+                <button class="btn btn-sm btn-link text-decoration-none" id="markAllAsRead">Marcar todas como leídas</button>
+              </div>
+              <div id="notificationsList">
+                <!-- Se llenará dinámicamente -->
+                <div class="notification-empty">
+                  <i class="bi bi-bell-slash"></i>
+                  <p>No tienes notificaciones</p>
+                </div>
+              </div>
+            </div>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#" id="cerrarSesion">Cerrar Sesión</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container mt-4">
+    <!-- Sección de bienvenida -->
+    <div class="row mb-4">
+      <div class="col-md-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h2 class="card-title">Panel de Administración</h2>
+            <p class="card-text">Bienvenido, <span id="nombreAdmin">Administrador</span></p>
+            <p class="card-text">Gestione usuarios, proyectos y asignaciones desde este panel.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Usuarios -->
+    <div id="seccionUsuarios" class="row">
+      <div class="col-md-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>Gestión de Usuarios</h3>
+          <button class="btn btn-primary" id="btnNuevoUsuario">
+            <i class="bi bi-person-plus"></i> Nuevo Usuario
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="filtros-container mb-3">
+              <div class="row">
+                <div class="col-md-4 mb-2">
+                  <label for="filtroRolUsuario" class="form-label">Filtrar por Rol</label>
+                  <select id="filtroRolUsuario" class="form-select">
+                    <option value="">Todos los roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="brigada">Brigada</option>
+                    <option value="trabajador">Trabajador</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                  <label for="filtroSectorUsuario" class="form-label">Filtrar por Sector</label>
+                  <select id="filtroSectorUsuario" class="form-select">
+                    <option value="">Todos los sectores</option>
+                    <option value="Norte">Norte</option>
+                    <option value="Sur">Sur</option>
+                    <option value="Este">Este</option>
+                    <option value="Oeste">Oeste</option>
+                    <option value="Centro">Centro</option>
+                  </select>
+                </div>
+                <div class="col-md-4 mb-2">
+                  <label for="buscarUsuario" class="form-label">Buscar</label>
+                  <input type="text" id="buscarUsuario" class="form-control" placeholder="Nombre, usuario o correo">
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Usuario</th>
+                    <th>Correo</th>
+                    <th>Rol</th>
+                    <th>Brigada</th>
+                    <th>Sector</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaUsuarios">
+                  <!-- Se llenará dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Proyectos -->
+    <div id="seccionProyectos" class="row" style="display: none;">
+      <div class="col-md-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>Gestión de Proyectos</h3>
+          <button class="btn btn-primary" id="btnNuevoProyecto">
+            <i class="bi bi-plus-circle"></i> Nuevo Proyecto
+          </button>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="filtros-container mb-3">
+              <div class="row">
+                <div class="col-md-3 mb-2">
+                  <label for="filtroEstadoProyecto" class="form-label">Filtrar por Estado</label>
+                  <select id="filtroEstadoProyecto" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="activo">Activo</option>
+                    <option value="inactivo">Inactivo</option>
+                    <option value="completado">Completado</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label for="filtroSectorProyecto" class="form-label">Filtrar por Sector</label>
+                  <select id="filtroSectorProyecto" class="form-select">
+                    <option value="">Todos los sectores</option>
+                    <option value="Norte">Norte</option>
+                    <option value="Sur">Sur</option>
+                    <option value="Este">Este</option>
+                    <option value="Oeste">Oeste</option>
+                    <option value="Centro">Centro</option>
+                  </select>
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label for="filtroPRST" class="form-label">Filtrar por PRST</label>
+                  <input type="text" id="filtroPRST" class="form-control" placeholder="Nombre de PRST">
+                </div>
+                <div class="col-md-3 mb-2">
+                  <label for="buscarProyecto" class="form-label">Buscar</label>
+                  <input type="text" id="buscarProyecto" class="form-control" placeholder="Nombre o descripción">
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Sector</th>
+                    <th>PRST</th>
+                    <th>Estado</th>
+                    <th>Progreso</th>
+                    <th>Postes</th>
+                    <th>Usuarios</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody id="tablaProyectos">
+                  <!-- Aquí se cargan los proyectos dinámicamente -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Asignaciones -->
+    <div id="seccionAsignaciones" class="row" style="display: none;">
+      <div class="col-md-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>Asignación de Proyectos</h3>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="sectorAsignacion" class="form-label">Filtrar por Sector</label>
+                <select id="sectorAsignacion" class="form-select">
+                  <option value="Todos">Todos los sectores</option>
+                  <option value="Norte">Norte</option>
+                  <option value="Sur">Sur</option>
+                  <option value="Este">Este</option>
+                  <option value="Oeste">Oeste</option>
+                  <option value="Centro">Centro</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="buscarProyectoAsignacion" class="form-label">Buscar Proyecto</label>
+                <input type="text" id="buscarProyectoAsignacion" class="form-control" placeholder="Escriba para buscar proyectos...">
+                <div class="list-group mt-2" id="listaProyectosAsignacion" style="max-height: 200px; overflow-y: auto;">
+                  <!-- Se llenará dinámicamente -->
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Usuarios Disponibles</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="mb-3">
+                      <input type="text" id="buscarUsuarioDisponible" class="form-control" placeholder="Buscar usuario...">
+                    </div>
+                    <div class="list-group" id="listaUsuariosDisponibles" style="max-height: 300px; overflow-y: auto;">
+                      <!-- Se llenará dinámicamente -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card">
+                  <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Usuarios Asignados</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="list-group" id="listaUsuariosAsignados" style="max-height: 300px; overflow-y: auto;">
+                      <!-- Se llenará dinámicamente -->
+                    </div>
+                  </div>
+                  <div class="card-footer">
+                    <button class="btn btn-primary w-100" id="btnGuardarAsignaciones">
+                      <i class="bi bi-save"></i> Guardar Asignaciones
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Solicitudes de Cambio de Contraseña -->
+    <div id="seccionSolicitudes" class="row" style="display: none;">
+      <div class="col-md-12 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3>Solicitudes de Cambio de Contraseña</h3>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <div class="filtros-container mb-3">
+              <div class="row">
+                <div class="col-md-4 mb-2">
+                  <label for="filtroEstadoSolicitud" class="form-label">Filtrar por Estado</label>
+                  <select id="filtroEstadoSolicitud" class="form-select">
+                    <option value="">Todos los estados</option>
+                    <option value="pendiente">Pendiente</option>
+                    <option value="aprobada">Aprobada</option>
+                    <option value="rechazada">Rechazada</option>
+                  </select>
+                </div>
+                <div class="col-md-8 mb-2">
+                  <label for="buscarSolicitud" class="form-label">Buscar</label>
+                  <input type="text" id="buscarSolicitud" class="form-control" placeholder="Nombre de usuario o correo">
+                </div>
+              </div>
+            </div>
+            <div id="listaSolicitudes">
+              <!-- Se llenará dinámicamente -->
+              <div class="text-center py-5" id="sinSolicitudes">
+                <p class="text-muted">No hay solicitudes de cambio de contraseña pendientes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para crear/editar usuario -->
+  
+  <!-- Modificar el Modal para crear/editar usuario -->
+  <div class="modal fade" id="modalUsuario" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="tituloModalUsuario">Nuevo Usuario</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formUsuario">
+            <input type="hidden" id="usuarioId">
+            <div class="mb-3">
+              <label for="nombre" class="form-label">Nombre Completo</label>
+              <input type="text" class="form-control" id="nombre" required>
+            </div>
+            <div class="mb-3">
+              <label for="nombreBrigada" class="form-label">Nombre de Brigada</label>
+              <input type="text" class="form-control" id="nombreBrigada" required>
+            </div>
+            <div class="mb-3">
+              <label for="cargo" class="form-label">Cargo</label>
+              <input type="text" class="form-control" id="cargo" required>
+            </div>
+            <div class="mb-3">
+              <label for="correo" class="form-label">Correo Electrónico</label>
+              <input type="email" class="form-control" id="correo" required>
+            </div>
+            <div class="mb-3">
+              <label for="usuario" class="form-label">Nombre de Usuario</label>
+              <input type="text" class="form-control" id="usuario" required>
+            </div>
+            <div class="mb-3">
+              <label for="password" class="form-label">Contraseña</label>
+              <input type="password" class="form-control" id="password" required>
+            </div>
+            <div class="mb-3">
+              <label for="rol" class="form-label">Rol</label>
+              <select class="form-select" id="rol" required>
+                <option value="">Seleccionar</option>
+                <option value="admin">Administrador</option>
+                <option value="prst">PRST</option>
+                <option value="ejecutiva">Ejecutiva</option>
+                <option value="coordinador">Coordinador</option>
+                <option value="analista">Analista</option>
+                <option value="brigada">Brigada</option>
+                <option value="trabajador">Trabajador</option>
+              </select>
+            </div>
+            
+            <!-- Campo PRST (se muestra solo cuando el rol es PRST) -->
+            <div class="mb-3" id="prstContainer" style="display: none;">
+              <label for="prstUsuario" class="form-label">PRST</label>
+              <input type="text" class="form-control" id="prstUsuario" list="prstOptionsUsuario" placeholder="Escriba para buscar...">
+              <datalist id="prstOptionsUsuario">
+                <option value="AIRE">
+                <option value="AIRTEK CARRIER SERVICES">
+                <option value="MUNICIPAL DE MAICAO">
+                <option value="TOTAL CONEXION">
+                <option value="APC LINK">
+                <option value="AUDICOL">
+                <option value="AWATA WIRELESS">
+                <option value="AZTECA">
+                <option value="MEGATEL">
+                <option value="CABLE EXPRESS">
+                <option value="CABLE GUAJIRA LTDA">
+                <option value="CABLE HOGAR.NET">
+                <option value="CAFETEL COMMUNICATIONS GROUP">
+                <option value="CARIBE INTERCOMUNICACIONES">
+                <option value="CARIBETECH">
+                <option value="CIRION TECHNOLOGIES COLOMBIA">
+                <option value="MOVISTAR">
+                <option value="COMUNET TELECOMUNICACIONES">
+                <option value="CLARO">
+                <option value="CLARO-S">
+                <option value="COMUNICACIONES TERRESTRES DE COLOMBIA">
+                <option value="CONETTA">
+                <option value="CGVE">
+                <option value="DATA LAN">
+                <option value="Dialnet">
+                <option value="DIGITAL COAST">
+                <option value="DIGITVNET">
+                <option value="DRACO NET">
+                <option value="ECONEXION">
+                <option value="ELECNORTE SAS ESP">
+                <option value="EME INGENIERIA S.A.">
+                <option value="ETB">
+                <option value="COSTATEL">
+                <option value="ENERGIZANDO - INGENIERÍA Y CONSTRUCCIÓN">
+                <option value="FIBER FAST">
+                <option value="FIBERCOMM">
+                <option value="FIBERLINK COMUNICACIONES">
+                <option value="FIBRAXO">
+                <option value="ELECNORTE">
+                <option value="GTD">
+                <option value="GUAJIRANET ISP">
+                <option value="TVNET">
+                <option value="IMB INGENIERIA EN REDES">
+                <option value="INTEGRA MULTISOLUTIONS">
+                <option value="INTELEXA DE COLOMBIA">
+                <option value="INTER REDES DEL MAGDALENA">
+                <option value="INTERCABLE">
+                <option value="INTERCAR.NET">
+                <option value="CABLE EXITO">
+                <option value="ISA">
+                <option value="INTERCONEXIONES TECNOLOGICAS DEL CARIBE SAS (INTERCON)">
+                <option value="INTERCOSTA">
+                <option value="INTERNET Y TELECOMUNICACIONES DE COLOMBIA">
+                <option value="INTERNEXA">
+                <option value="INTERNEXT">
+                <option value="INTERTEL SATELITAL">
+                <option value="INVERSIONES ACOSTA VERGARA">
+                <option value="INVERSIONES RODRIGUEZ MEJIA">
+                <option value="IST INGENIERIA Y SOLUCIONES TECNOLOGICAS">
+                <option value="POLICIA NACIONAL">
+                <option value="ITELKOM">
+                <option value="JALU SOLUCIONES">
+                <option value="JHOSDY TELECOMUNICACIONES">
+                <option value="C&W Network">
+                <option value="LOGISTICA EN TELECOMUNICACIONES">
+                <option value="MACITEL">
+                <option value="MAOTECH TELECOMUNICACIONES">
+                <option value="MEDIA COMMERCE">
+                <option value="MEGA TV">
+                <option value="NOVACLICK">
+                <option value="O2 ONLINE">
+                <option value="ONNET">
+                <option value="WOM">
+                <option value="PLUSNET">
+                <option value="PRODATEL">
+                <option value="PROMO VISIÓN">
+                <option value="QUEST TELECOM">
+                <option value="R&R TELECOMUNICACIONES">
+                <option value="RAPILINK">
+                <option value="REDES TELECOMUNICACIONES DIGITALES DE COLOMBIA">
+                <option value="SAVASA SOLUCIONES INTEGRALES">
+                <option value="DATASET">
+                <option value="SERVICIOS INTEGRALES PERSONALIZADOS">
+                <option value="SERVICOM J&E">
+                <option value="SERVISOLUCIONES JM">
+                <option value="SIN IDENTIFICAR">
+                <option value="SMK DUO CONEXCION">
+                <option value="SOLUCIONES DANTEL">
+                <option value="E-VOLT TECK">
+                <option value="SEGITEL">
+                <option value="SOLUNET DIGITAL">
+                <option value="SPACE COMUNICACIONES">
+                <option value="STARCOM CARIBE">
+                <option value="SUPERCABLE TELECOMUNICACIONES">
+                <option value="TELECOMUNICACIONES ZONA BANANERA">
+                <option value="TIRIAN TELECOMUNICACIONES">
+                <option value="TOP LINK">
+                <option value="TUNORTETV TELECOMUNICACIONES">
+                <option value="TV COMUNICACIONES JL">
+                <option value="TV LINE">
+                <option value="TV ZONA BANANERA">
+                <option value="UFINET">
+                <option value="TIGO">
+                <option value="VENTELCO">
+                <option value="VYC NETWORKS">
+                <option value="WAYIRANET">
+                <option value="WIPA">
+              </datalist>
+            </div>
+            
+            <!-- Campo Sector (se muestra solo cuando el rol es Brigada) -->
+            <div class="mb-3" id="sectorContainer" style="display: none;">
+              <label for="sector" class="form-label">Sector</label>
+              <select class="form-select" id="sector">
+                <option value="">Seleccionar</option>
+                <option value="Norte">Norte</option>
+                <option value="Sur">Sur</option>
+                <option value="Este">Este</option>
+                <option value="Oeste">Oeste</option>
+                <option value="Centro">Centro</option>
+                <option value="Todos">Todos</option>
+              </select>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnGuardarUsuario">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para crear/editar proyecto -->
+  <div class="modal fade" id="modalProyecto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="tituloModalProyecto">Nuevo Proyecto</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formProyecto">
+            <input type="hidden" id="proyectoId">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="nombreProyecto" class="form-label">Nombre del Proyecto</label>
+                  <input type="text" class="form-control" id="nombreProyecto" required>
+                </div>
+                <div class="mb-3">
+                  <label for="descripcion" class="form-label">Descripción</label>
+                  <textarea class="form-control" id="descripcion" rows="3"></textarea>
+                </div>
+                <div class="mb-3">
+                  <label for="prst" class="form-label">PRST</label>
+                  <input type="text" class="form-control" id="prst" list="prstOptions" placeholder="Escriba para buscar...">
+                  <datalist id="prstOptions">
+                    <option value="AIRE">
+                    <option value="AIRTEK CARRIER SERVICES">
+                    <option value="MUNICIPAL DE MAICAO">
+                    <option value="TOTAL CONEXION">
+                    <option value="APC LINK">
+                    <option value="AUDICOL">
+                    <option value="AWATA WIRELESS">
+                    <option value="AZTECA">
+                    <option value="MEGATEL">
+                    <option value="CABLE EXPRESS">
+                    <option value="CABLE GUAJIRA LTDA">
+                    <option value="CABLE HOGAR.NET">
+                    <option value="CAFETEL COMMUNICATIONS GROUP">
+                    <option value="CARIBE INTERCOMUNICACIONES">
+                    <option value="CARIBETECH">
+                    <option value="CIRION TECHNOLOGIES COLOMBIA">
+                    <option value="MOVISTAR">
+                    <option value="COMUNET TELECOMUNICACIONES">
+                    <option value="CLARO">
+                    <option value="CLARO-S">
+                    <option value="COMUNICACIONES TERRESTRES DE COLOMBIA">
+                    <option value="CONETTA">
+                    <option value="CGVE">
+                    <option value="DATA LAN">
+                    <option value="Dialnet">
+                    <option value="DIGITAL COAST">
+                    <option value="DIGITVNET">
+                    <option value="DRACO NET">
+                    <option value="ECONEXION">
+                    <option value="ELECNORTE SAS ESP">
+                    <option value="EME INGENIERIA S.A.">
+                    <option value="ETB">
+                    <option value="COSTATEL">
+                    <option value="ENERGIZANDO - INGENIERÍA Y CONSTRUCCIÓN">
+                    <option value="FIBER FAST">
+                    <option value="FIBERCOMM">
+                    <option value="FIBERLINK COMUNICACIONES">
+                    <option value="FIBRAXO">
+                    <option value="ELECNORTE">
+                    <option value="GTD">
+                    <option value="GUAJIRANET ISP">
+                    <option value="TVNET">
+                    <option value="IMB INGENIERIA EN REDES">
+                    <option value="INTEGRA MULTISOLUTIONS">
+                    <option value="INTELEXA DE COLOMBIA">
+                    <option value="INTER REDES DEL MAGDALENA">
+                    <option value="INTERCABLE">
+                    <option value="INTERCAR.NET">
+                    <option value="CABLE EXITO">
+                    <option value="ISA">
+                    <option value="INTERCONEXIONES TECNOLOGICAS DEL CARIBE SAS (INTERCON)">
+                    <option value="INTERCOSTA">
+                    <option value="INTERNET Y TELECOMUNICACIONES DE COLOMBIA">
+                    <option value="INTERNEXA">
+                    <option value="INTERNEXT">
+                    <option value="INTERTEL SATELITAL">
+                    <option value="INVERSIONES ACOSTA VERGARA">
+                    <option value="INVERSIONES RODRIGUEZ MEJIA">
+                    <option value="IST INGENIERIA Y SOLUCIONES TECNOLOGICAS">
+                    <option value="POLICIA NACIONAL">
+                    <option value="ITELKOM">
+                    <option value="JALU SOLUCIONES">
+                    <option value="JHOSDY TELECOMUNICACIONES">
+                    <option value="C&W Network">
+                    <option value="LOGISTICA EN TELECOMUNICACIONES">
+                    <option value="MACITEL">
+                    <option value="MAOTECH TELECOMUNICACIONES">
+                    <option value="MEDIA COMMERCE">
+                    <option value="MEGA TV">
+                    <option value="NOVACLICK">
+                    <option value="O2 ONLINE">
+                    <option value="ONNET">
+                    <option value="WOM">
+                    <option value="PLUSNET">
+                    <option value="PRODATEL">
+                    <option value="PROMO VISIÓN">
+                    <option value="QUEST TELECOM">
+                    <option value="R&R TELECOMUNICACIONES">
+                    <option value="RAPILINK">
+                    <option value="REDES TELECOMUNICACIONES DIGITALES DE COLOMBIA">
+                    <option value="SAVASA SOLUCIONES INTEGRALES">
+                    <option value="DATASET                    <option value="SAVASA SOLUCIONES INTEGRALES">
+                    <option value="SERVICIOS INTEGRALES PERSONALIZADOS">
+                    <option value="SERVICOM J&E">
+                    <option value="SERVISOLUCIONES JM">
+                    <option value="SIN IDENTIFICAR">
+                    <option value="SMK DUO CONEXCION">
+                    <option value="SOLUCIONES DANTEL">
+                    <option value="E-VOLT TECK">
+                    <option value="SEGITEL">
+                    <option value="SOLUNET DIGITAL">
+                    <option value="SPACE COMUNICACIONES">
+                    <option value="STARCOM CARIBE">
+                    <option value="SUPERCABLE TELECOMUNICACIONES">
+                    <option value="TELECOMUNICACIONES ZONA BANANERA">
+                    <option value="TIRIAN TELECOMUNICACIONES">
+                    <option value="TOP LINK">
+                    <option value="TUNORTETV TELECOMUNICACIONES">
+                    <option value="TV COMUNICACIONES JL">
+                    <option value="TV LINE">
+                    <option value="TV ZONA BANANERA">
+                        <option value="UFINET">
+                        <option value="TIGO">
+                        <option value="VENTELCO">
+                        <option value="VYC NETWORKS">
+                        <option value="WAYIRANET">
+                        <option value="WIPA">
+                      </datalist>
+                     </div>
+
+                <!-- Cambiar "Sector" por "Departamento" -->
+<div class="mb-3">
+  <label for="sectorProyecto" class="form-label">Departamento</label>
+  <select id="sectorProyecto" class="form-select" required>
+    <option value="" selected>Seleccione...</option>
+    <option value="Guajira">Guajira</option>
+    <option value="Atlantico">Atlántico</option>
+    <option value="Magdalena">Magdalena</option>
+  </select>
+</div>
+              </div>
+              <div class="col-md-6">
+                <!-- Modificar el campo de estado para que siempre sea "activo" -->
+<div class="mb-3">
+  <label for="estado" class="form-label">Estado</label>
+  <select id="estado" class="form-select" required disabled>
+    <option value="activo" selected>Activo</option>
+    <option value="inactivo">Inactivo</option>
+    <option value="completado">Completado</option>
+  </select>
+  <input type="hidden" id="estadoHidden" value="activo">
+</div>
+                <div class="mb-3">
+                  <label for="archivoKML" class="form-label">Archivo KML/KMZ</label>
+                  <input type="file" class="form-control" id="archivoKML" accept=".kml,.kmz">
+                  <div class="form-text" id="archivoKMLInfo">Seleccione un archivo KML o KMZ con los puntos del proyecto.</div>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Vista previa del mapa</label>
+                  <div id="mapaPreview" style="height: 200px;"></div>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnGuardarProyecto">Guardar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modal para ver detalles del proyecto -->
+  <div class="modal fade" id="modalDetalleProyecto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Detalle del Proyecto</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Información General</h6>
+              <table class="table table-sm">
+                <tr>
+                  <th>ID:</th>
+                  <td id="detalleProyectoId"></td>
+                </tr>
+                <tr>
+                  <th>Nombre:</th>
+                  <td id="detalleProyectoNombre"></td>
+                </tr>
+                <tr>
+                  <th>Descripción:</th>
+                  <td id="detalleProyectoDescripcion"></td>
+                </tr>
+                <tr>
+                  <th>Sector:</th>
+                  <td id="detalleProyectoSector"></td>
+                </tr>
+                <tr>
+                  <th>PRST:</th>
+                  <td id="detalleProyectoPRST"></td>
+                </tr>
+                <tr>
+                  <th>Estado:</th>
+                  <td id="detalleProyectoEstado"></td>
+                </tr>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h6>Mapa del Proyecto</h6>
+              <div id="detalleProyectoMapa" style="height: 200px;"></div>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <h6>Usuarios Asignados</h6>
+              <div id="detalleProyectoUsuarios">
+                <!-- Se llenará dinámicamente -->
+              </div>
+            </div>
+          </div>
+          <div class="row mt-3">
+            <div class="col-md-12">
+              <h6>Progreso del Censo</h6>
+              <div class="progress mb-2">
+                <div id="detalleProyectoProgreso" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+              </div>
+              <p><span id="detalleProyectoPostesCensados">0</span> de <span id="detalleProyectoPostesTotales">0</span> postes censados</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para procesar solicitud de cambio de contraseña -->
+  <div class="modal fade" id="modalProcesarSolicitud" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Procesar Solicitud de Cambio de Contraseña</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="solicitudId">
+          <div class="mb-3">
+            <h6>Información de la Solicitud</h6>
+            <table class="table table-sm">
+              <tr>
+                <th>Usuario:</th>
+                <td id="solicitudUsuario"></td>
+              </tr>
+              <tr>
+                <th>Correo:</th>
+                <td id="solicitudCorreo"></td>
+              </tr>
+              <tr>
+                <th>Fecha de Solicitud:</th>
+                <td id="solicitudFecha"></td>
+              </tr>
+              <tr>
+                <th>Motivo:</th>
+                <td id="solicitudMotivo"></td>
+              </tr>
+            </table>
+          </div>
+          <div class="mb-3">
+            <label for="nuevaPassword" class="form-label">Nueva Contraseña</label>
+            <input type="password" class="form-control" id="nuevaPassword" required>
+          </div>
+          <div class="mb-3">
+            <label for="confirmarNuevaPassword" class="form-label">Confirmar Nueva Contraseña</label>
+            <input type="password" class="form-control" id="confirmarNuevaPassword" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" id="btnRechazarSolicitud">Rechazar</button>
+          <button type="button" class="btn btn-success" id="btnAprobarSolicitud">Aprobar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para mensajes -->
+  <div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="tituloModalMensaje">Mensaje</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="textoModalMensaje"></p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pie de página -->
+  <footer class="bg-white shadow p-3 mt-5">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4 col-sm-12 mb-3 text-center text-md-start">
+          <img src="./Images/IconoAir-e.webp" alt="Ícono Air-e" width="80">
+          <p><strong>Dirección:</strong><br>
+          Cra 57 No 99A - 65<br>
+          Torres del Atlántico.<br>
+          Barranquilla, Atlántico.</p>
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center">
+          <p><strong class="text-primary">Líneas de atención:</strong><br>
+          Fijo o celular: 115<br>
+          Línea nacional gratuita: 018000 930 135<br>
+          PBX Atlántico: (605) 361 1000<br>
+          PBX Magdalena: (605) 423 7097<br>
+          PBX Guajira: (605) 727 9814</p>
+        </div>
+        <div class="col-md-4 col-sm-12 mb-3 text-center text-md-end">
+          <p><strong class="text-primary">Síguenos</strong></p>
+          <div class="social-icons">
+            <a href="#"><i class="bi bi-twitter-x"></i></a>
+            <a href="#"><i class="bi bi-youtube"></i></a>
+            <a href="#"><i class="bi bi-facebook"></i></a>
+          </div>
+          <p class="politicas-link"><a href="#">Políticas tratamiento de datos »</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-text text-center">
+      <p>&copy; 2025 Air-e Censo. Air-e intervenida 2024.</p>
+    </div>
+  </footer>
+
+  <!-- Añadir jQuery antes de Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Añadir JSZip antes del cierre del body -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./Js/storage.js"></script>
+  <!-- Agregar el script de KML Handler antes del script de admin.js -->
+  <script src="./Js/kml-handler.js"></script>
+  <script src="./Js/admin.js"></script>
+  <script src="./Js/fix-user-save.js"></script>
+  <!-- Asegurar que el botón de guardar proyecto tenga un event listener correcto -->
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    // Función global para guardar proyecto
+    window.guardarProyecto = function() {
+      const form = document.getElementById("formProyecto");
+
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const proyectoId = document.getElementById("proyectoId").value;
+      const proyecto = {
+        id: proyectoId || null,
+        nombre: document.getElementById("nombreProyecto").value,
+        descripcion: document.getElementById("descripcion").value || "",
+        sector: document.getElementById("sectorProyecto").value,
+        estado: document.getElementById("estadoHidden").value || "activo",
+        prst: document.getElementById("prst").value || "", // Use prst instead of prstSolicitante
+        usuariosAsignados: []
+      };
+
+      // Si es un proyecto existente, mantener los datos del KML y usuarios asignados
+      if (proyectoId) {
+        const proyectoExistente = Storage.getProjectById(proyectoId);
+        if (proyectoExistente) {
+          proyecto.kmlData = proyectoExistente.kmlData;
+          proyecto.usuariosAsignados = proyectoExistente.usuariosAsignados || [];
+        }
+      }
+
+      // Procesar archivo KML/KMZ si se seleccionó uno
+      const archivoKML = document.getElementById("archivoKML").files[0];
+
+      if (archivoKML) {
+        if (archivoKML.name.toLowerCase().endsWith(".kmz")) {
+          // Para archivos KMZ, usar KMLHandler
+          KMLHandler.processFile(archivoKML)
+            .then((kmlData) => {
+              // Si es un proyecto nuevo, usar el nombre del archivo KMZ como nombre del proyecto
+              if (!proyectoId && !proyecto.nombre) {
+                const nombreArchivo = archivoKML.name.replace(/\.kmz$/i, "");
+                proyecto.nombre = nombreArchivo;
+                document.getElementById("nombreProyecto").value = nombreArchivo;
+              }
+
+              // Adaptar el formato de datos si es necesario
+              const datosAdaptados = {
+                puntos: kmlData.puntos.map((p) => ({
+                  nombre: p.nombre,
+                  descripcion: p.descripcion,
+                  lat: p.lat,
+                  lon: p.lng || p.lon,
+                  carpeta: p.carpeta
+                })),
+                lineas: kmlData.rutas || []
+              };
+
+              proyecto.kmlData = datosAdaptados;
+
+              // Guardar proyecto
+              Storage.saveProject(proyecto);
+
+              // Cerrar modal
+              const modalProyecto = bootstrap.Modal.getInstance(document.getElementById("modalProyecto"));
+              modalProyecto.hide();
+
+              // Recargar tabla
+              cargarProyectos();
+
+              // Mostrar mensaje
+              mostrarMensaje("Éxito", `Proyecto ${proyectoId ? "actualizado" : "creado"} correctamente.`);
+            })
+            .catch((error) => {
+              mostrarMensaje("Error", "Error al procesar el archivo KMZ: " + error.message);
+            });
+        } else {
+          // Para archivos KML, usar el método anterior
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const contenido = e.target.result;
+
+            try {
+              // Si es un proyecto nuevo, usar el nombre del archivo KML como nombre del proyecto
+              if (!proyectoId && !proyecto.nombre) {
+                const nombreArchivo = archivoKML.name.replace(/\.kml$/i, "");
+                proyecto.nombre = nombreArchivo;
+                document.getElementById("nombreProyecto").value = nombreArchivo;
+              }
+
+              // Procesar KML directamente
+              const kmlData = KMLHandler.procesarKML(contenido);
+              proyecto.kmlData = kmlData;
+
+              // Guardar proyecto
+              Storage.saveProject(proyecto);
+
+              // Cerrar modal
+              const modalProyecto = bootstrap.Modal.getInstance(document.getElementById("modalProyecto"));
+              modalProyecto.hide();
+
+              // Recargar tabla
+              cargarProyectos();
+
+              // Mostrar mensaje
+              mostrarMensaje("Éxito", `Proyecto ${proyectoId ? "actualizado" : "creado"} correctamente.`);
+            } catch (error) {
+              mostrarMensaje("Error", "Error al procesar el archivo KML: " + error.message);
+            }
+          };
+
+          reader.readAsText(archivoKML);
+        }
+      } else {
+        // Guardar proyecto sin KML
+        Storage.saveProject(proyecto);
+
+        // Cerrar modal
+        const modalProyecto = bootstrap.Modal.getInstance(document.getElementById("modalProyecto"));
+        modalProyecto.hide();
+
+        // Recargar tabla
+        cargarProyectos();
+
+        // Mostrar mensaje
+        mostrarMensaje("Éxito", `Proyecto ${proyectoId ? "actualizado" : "creado"} correctamente.`);
+      }
+    };
+
+    // Asignar el event listener al botón de guardar proyecto
+    const btnGuardarProyecto = document.getElementById("btnGuardarProyecto");
+    if (btnGuardarProyecto) {
+      // Eliminar cualquier event listener existente para evitar duplicados
+      const nuevoBtn = btnGuardarProyecto.cloneNode(true);
+      btnGuardarProyecto.parentNode.replaceChild(nuevoBtn, btnGuardarProyecto);
+      
+      // Añadir el event listener
+      nuevoBtn.addEventListener("click", window.guardarProyecto);
+    }
+    
+    // Asegurar que el botón de eliminar usuario funcione
+    window.eliminarUsuario = function(id) {
+      if (confirm("¿Está seguro de que desea eliminar este usuario?")) {
+        Storage.deleteUser(id);
+        cargarUsuarios();
+        mostrarMensaje("Éxito", "Usuario eliminado correctamente.");
+      }
+    };
+    
+    // Asegurar que el botón de eliminar proyecto funcione
+    window.eliminarProyecto = function(id) {
+      if (confirm("¿Está seguro de que desea eliminar este proyecto?")) {
+        Storage.deleteProject(id);
+        cargarProyectos();
+        mostrarMensaje("Éxito", "Proyecto eliminado correctamente.");
+      }
+    };
+
+    // Función global para mostrar mensajes
+    window.mostrarMensaje = function(title, text, icon = "success") {
+      document.getElementById("tituloModalMensaje").textContent = title;
+      document.getElementById("textoModalMensaje").textContent = text;
+
+      const modalMensaje = new bootstrap.Modal(document.getElementById("modalMensaje"));
+      modalMensaje.show();
+    };
+
+    // Función global para cargar proyectos
+    window.cargarProyectos = function() {
+      const proyectos = Storage.getProjects();
+      const tablaProyectos = document.getElementById("tablaProyectos");
+
+      // Cambiar el encabezado de la tabla de "Sector" a "Departamento"
+      const encabezadosSector = document.querySelectorAll("th");
+      encabezadosSector.forEach((th) => {
+        if (th.textContent.includes("Sector")) {
+          th.textContent = "Departamento";
+        }
+      });
+
+      // Aplicar filtros
+      const estadoFiltro = document.getElementById("filtroEstadoProyecto").value;
+      const sectorFiltro = document.getElementById("filtroSectorProyecto").value;
+      const busqueda = document.getElementById("buscarProyecto").value.toLowerCase();
+      const prstFiltro = document.getElementById("filtroPRST").value.toLowerCase();
+
+      const proyectosFiltrados = proyectos.filter((proyecto) => {
+        const cumpleEstado = !estadoFiltro || proyecto.estado === estadoFiltro;
+        const cumpleSector = !sectorFiltro || proyecto.sector === sectorFiltro;
+        const cumpleBusqueda =
+          !busqueda ||
+          proyecto.nombre.toLowerCase().includes(busqueda) ||
+          (proyecto.descripcion && proyecto.descripcion.toLowerCase().includes(busqueda));
+        const cumplePRST = !prstFiltro || proyecto.prst.toLowerCase().includes(prstFiltro);
+
+        return cumpleEstado && cumpleSector && cumpleBusqueda && cumplePRST;
+      });
+
+      // Generar HTML para la tabla
+      let html = "";
+      proyectosFiltrados.forEach((proyecto) => {
+        // Obtener progreso del proyecto
+        const progreso = Storage.getProjectProgress(proyecto.id);
+
+        // Contar usuarios asignados
+        const usuariosAsignadosCount = proyecto.usuariosAsignados ? proyecto.usuariosAsignados.length : 0;
+
+        // Contar postes totales
+        let postesTotales = 0;
+        if (proyecto.kmlData && proyecto.kmlData.puntos) {
+          postesTotales = proyecto.kmlData.puntos.filter((p) => {
+            const nombre = (p.nombre || "").toLowerCase();
+            const descripcion = (p.descripcion || "").toLowerCase();
+            return (
+              nombre.includes("poste") ||
+              descripcion.includes("poste") ||
+              /^p\d+$/i.test(nombre) ||
+              /^poste\s*\d+$/i.test(nombre) ||
+              /^\d+$/.test(nombre)
+            );
+          }).length;
+        }
+
+        html += `
+          <tr>
+            <td>${proyecto.id}</td>
+            <td>${proyecto.nombre}</td>
+            <td>${proyecto.descripcion || "N/A"}</td>
+            <td>${proyecto.sector || "N/A"}</td>
+            <td>${proyecto.prst || "N/A"}</td>
+            <td>
+              <span class="badge ${proyecto.estado === "activo" ? "bg-success" : proyecto.estado === "inactivo" ? "bg-warning" : "bg-secondary"}">
+                ${Storage.getStatusDisplayName(proyecto.estado)}
+              </span>
+            </td>
+            <td>
+              <div class="progress" style="height: 10px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: ${progreso.porcentaje}%;" 
+                  aria-valuenow="${progreso.porcentaje}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <small>${progreso.porcentaje}%</small>
+          </td>
+          <td>${postesTotales}</td>
+          <td>${usuariosAsignadosCount}</td>
+          <td>
+            <button class="btn btn-sm btn-info me-1" onclick="verDetalleProyecto('${proyecto.id}')">
+              <i class="bi bi-eye"></i>
+            </button>
+            <button class="btn btn-sm btn-primary me-1" onclick="editarProyecto('${proyecto.id}')">
+              <i class="bi bi-pencil"></i>
+            </button>
+            <button class="btn btn-sm btn-danger" onclick="eliminarProyecto('${proyecto.id}')">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+      });
+
+      if (proyectosFiltrados.length === 0) {
+        html = `
+          <tr>
+            <td colspan="10" class="text-center">No se encontraron proyectos</td>
+          </tr>
+        `;
+      }
+
+      tablaProyectos.innerHTML = html;
+    };
+  });
+</script>
+<!-- Modify the user modal to show/hide Sector based on role -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Role select change handler
+  const rolSelect = document.getElementById("rol");
+  const sectorField = document.getElementById("sector").closest(".mb-3");
+  
+  if (rolSelect && sectorField) {
+    // Initialize on load
+    if (rolSelect.value !== "brigada") {
+      sectorField.style.display = "none";
+    }
+    
+    rolSelect.addEventListener("change", function() {
+      if (this.value === "brigada") {
+        sectorField.style.display = "block";
+      } else {
+        sectorField.style.display = "none";
+        // Reset sector value for non-brigada roles
+        document.getElementById("sector").value = "";
+      }
+    });
+  }
+  
+  // Fix for the New User modal
+  const btnNuevoUsuario = document.getElementById("btnNuevoUsuario");
+  if (btnNuevoUsuario) {
+    btnNuevoUsuario.addEventListener("click", function() {
+      setTimeout(() => {
+        const currentRole = rolSelect.value;
+        if (currentRole === "brigada") {
+          sectorField.style.display = "block";
+        } else {
+          sectorField.style.display = "none";
+        }
+      }, 300);
+    });
+  }
+  
+  // Fix for Edit User
+  window.editarUsuario = function(id) {
+    const usuario = Storage.getUserById(id);
+
+    if (!usuario) {
+      mostrarMensaje("Error", "Usuario no encontrado.");
+      return;
+    }
+
+    document.getElementById("tituloModalUsuario").textContent = "Editar Usuario";
+    document.getElementById("usuarioId").value = usuario.id;
+    document.getElementById("nombre").value = usuario.nombre;
+    document.getElementById("nombreBrigada").value = usuario.nombreBrigada || "";
+    document.getElementById("cargo").value = usuario.cargo || "";
+    document.getElementById("correo").value = usuario.correo;
+    document.getElementById("usuario").value = usuario.usuario;
+    document.getElementById("password").value = usuario.password;
+    document.getElementById("rol").value = usuario.rol;
+    document.getElementById("sector").value = usuario.sector || "";
+    
+    // Show/hide sector based on role
+    const sectorField = document.getElementById("sector").closest(".mb-3");
+    if (usuario.rol === "brigada") {
+      sectorField.style.display = "block";
+    } else {
+      sectorField.style.display = "none";
+    }
+
+    const modalUsuario = new bootstrap.Modal(document.getElementById("modalUsuario"));
+    modalUsuario.show();
+  };
+
+  
+});
+</script>
+<!-- Añadir al final del archivo, antes del cierre del body -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Role select change handler
+  const rolSelect = document.getElementById("rol");
+  const sectorField = document.getElementById("sectorContainer");
+  const prstField = document.getElementById("prstContainer");
+  
+  if (rolSelect && sectorField && prstField) {
+    // Initialize on load
+    if (rolSelect.value === "brigada") {
+      sectorField.style.display = "block";
+    } else if (rolSelect.value === "prst") {
+      prstField.style.display = "block";
+    } else {
+      sectorField.style.display = "none";
+      prstField.style.display = "none";
+    }
+    
+    rolSelect.addEventListener("change", function() {
+      // Hide all role-specific fields first
+      sectorField.style.display = "none";
+      prstField.style.display = "none";
+      
+      // Show the appropriate field based on role
+      if (this.value === "brigada") {
+        sectorField.style.display = "block";
+      } else if (this.value === "prst") {
+        prstField.style.display = "block";
+      }
+    });
+  }
+  
+  // Fix for the New User modal
+  const btnNuevoUsuario = document.getElementById("btnNuevoUsuario");
+  if (btnNuevoUsuario) {
+    btnNuevoUsuario.addEventListener("click", function() {
+      setTimeout(() => {
+        const currentRole = rolSelect.value;
+        sectorField.style.display = currentRole === "brigada" ? "block" : "none";
+        prstField.style.display = currentRole === "prst" ? "block" : "none";
+      }, 300);
+    });
+  }
+  
+  // Fix for Edit User
+  window.editarUsuario = function(id) {
+    const usuario = Storage.getUserById(id);
+
+    if (!usuario) {
+      mostrarMensaje("Error", "Usuario no encontrado.");
+      return;
+    }
+
+    document.getElementById("tituloModalUsuario").textContent = "Editar Usuario";
+    document.getElementById("usuarioId").value = usuario.id;
+    document.getElementById("nombre").value = usuario.nombre;
+    document.getElementById("nombreBrigada").value = usuario.nombreBrigada || "";
+    document.getElementById("cargo").value = usuario.cargo || "";
+    document.getElementById("correo").value = usuario.correo;
+    document.getElementById("usuario").value = usuario.usuario;
+    document.getElementById("password").value = usuario.password;
+    document.getElementById("rol").value = usuario.rol;
+    document.getElementById("sector").value = usuario.sector || "";
+    
+    // Handle PRST field
+    if (document.getElementById("prstUsuario")) {
+      document.getElementById("prstUsuario").value = usuario.nombrePRST || "";
+    }
+    
+    // Show/hide fields based on role
+    const sectorField = document.getElementById("sectorContainer");
+    const prstField = document.getElementById("prstContainer");
+    
+    sectorField.style.display = usuario.rol === "brigada" ? "block" : "none";
+    prstField.style.display = usuario.rol === "prst" ? "block" : "none";
+
+    const modalUsuario = new bootstrap.Modal(document.getElementById("modalUsuario"));
+    modalUsuario.show();
+  };
+});
+</script>
+<!-- Script para manejar el botón de guardar usuario -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Eliminar cualquier event listener existente del bot��n
+  const btnGuardarUsuario = document.getElementById("btnGuardarUsuario");
+  if (btnGuardarUsuario) {
+    // Clonar el botón para eliminar todos los event listeners
+    const nuevoBtn = btnGuardarUsuario.cloneNode(true);
+    btnGuardarUsuario.parentNode.replaceChild(nuevoBtn, btnGuardarUsuario);
+    
+    // Asignar un único event listener
+    nuevoBtn.onclick = function(e) {
+      e.preventDefault();
+      console.log("Botón de guardar usuario clickeado (único listener)");
+      
+      // Función para guardar usuario directamente
+      const form = document.getElementById("formUsuario");
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+      }
+
+      const usuarioId = document.getElementById("usuarioId").value;
+      const usuario = {
+        id: usuarioId || null,
+        nombre: document.getElementById("nombre").value,
+        apellido: document.getElementById("apellido") ? document.getElementById("apellido").value || "" : "",
+        nombreBrigada: document.getElementById("nombreBrigada").value || "",
+        cargo: document.getElementById("cargo").value || "",
+        correo: document.getElementById("correo").value,
+        usuario: document.getElementById("usuario").value,
+        password: document.getElementById("password").value,
+        rol: document.getElementById("rol").value,
+        sector: document.getElementById("sector").value || "",
+        activo: true
+      };
+
+      // Add PRST specific field if role is prst
+      if (usuario.rol === "prst") {
+        usuario.nombrePRST = document.getElementById("prstUsuario").value || "";
+      }
+
+      // Verificar si ya existe un usuario con ese nombre de usuario o correo
+      const usuarios = JSON.parse(localStorage.getItem("air_e_users") || "[]");
+      const usuarioExistente = usuarios.find(u => u.usuario === usuario.usuario && (!usuarioId || u.id !== usuarioId));
+      const correoExistente = usuarios.find(u => u.correo === usuario.correo && (!usuarioId || u.id !== usuarioId));
+
+      if (usuarioExistente) {
+        alert("Ya existe un usuario con ese nombre de usuario.");
+        return;
+      }
+
+      if (correoExistente) {
+        alert("Ya existe un usuario con ese correo electrónico.");
+        return;
+      }
+
+      // Si es un nuevo usuario, generar ID
+      if (!usuario.id) {
+        // Obtener contador
+        const counter = JSON.parse(localStorage.getItem("air_e_counter") || '{"users":10}');
+        usuario.id = (++counter.users).toString();
+        
+        // Guardar contador actualizado
+        localStorage.setItem("air_e_counter", JSON.stringify(counter));
+        
+        // Añadir usuario al array
+        usuarios.push(usuario);
+      } else {
+        // Actualizar usuario existente
+        const index = usuarios.findIndex(u => u.id === usuario.id);
+        if (index !== -1) {
+          usuarios[index] = usuario;
+        } else {
+          usuarios.push(usuario);
+        }
+      }
+
+      // Guardar usuarios actualizados
+      localStorage.setItem("air_e_users", JSON.stringify(usuarios));
+      console.log("Usuario guardado:", usuario);
+
+      // Cerrar modal
+      const modalUsuario = bootstrap.Modal.getInstance(document.getElementById("modalUsuario"));
+      modalUsuario.hide();
+
+      // Recargar tabla
+      if (typeof cargarUsuarios === 'function') {
+        cargarUsuarios();
+      } else {
+        location.reload(); // Recargar la página si la función no está disponible
+      }
+
+      // Mostrar mensaje
+      alert(`Usuario ${usuarioId ? "actualizado" : "creado"} correctamente.`);
+    };
+  }
+});
+</script>
+</body>
+</html>
+

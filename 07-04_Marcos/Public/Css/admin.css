@@ -1,0 +1,36 @@
+/* Estilo para la barra de navegación */
+.navbar {
+  padding: 10px;
+}
+
+/* Estilo para el contenido principal */
+.content {
+  padding: 20px;
+}
+
+/* Estilo para el formulario y tabla en pantallas pequeñas */
+.form-control,
+.form-select {
+  font-size: 14px;
+}
+
+.table {
+  font-size: 14px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Estilo de la tabla en pantallas pequeñas */
+@media (max-width: 576px) {
+  .table th,
+  .table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .form-control,
+  .form-select {
+    font-size: 12px;
+  }
+}
+

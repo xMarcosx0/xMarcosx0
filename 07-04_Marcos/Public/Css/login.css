@@ -1,0 +1,281 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-family: "Roboto", sans-serif;
+}
+
+body {
+  background-image: url(../Images/fondoparking.jpg);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+  color: #333;
+}
+
+main {
+  width: 100%;
+  padding: 20px;
+  margin: auto;
+  margin-top: 80px;
+}
+
+.contenedor__todo {
+  width: 100%;
+  max-width: 800px;
+  margin: auto;
+  position: relative;
+}
+
+.caja__trasera {
+  width: 100%;
+  padding: 30px 40px;
+  display: flex;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  background-color: rgba(0, 85, 184, 0.85);
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.caja__trasera div {
+  margin: 80px 40px;
+  color: white;
+  transition: all 500ms;
+  text-align: center;
+}
+
+.caja__trasera div p,
+.caja__trasera button {
+  margin-top: 20px;
+}
+
+.caja__trasera div h3 {
+  font-weight: 500;
+  font-size: 28px;
+  margin-bottom: 15px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.caja__trasera div p {
+  font-size: 18px;
+  font-weight: 300;
+  line-height: 1.5;
+  max-width: 500px;
+  margin: 20px auto;
+}
+
+.caja__trasera button {
+  padding: 12px 40px;
+  border: 2px solid #fff;
+  font-size: 16px;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  outline: none;
+  transition: all 300ms;
+  border-radius: 50px;
+}
+
+.caja__trasera button:hover {
+  background: #fff;
+  color: #0055b8;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.contenedor__login-register {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 380px;
+  position: relative;
+  top: -185px;
+  left: 10px;
+  transition: left 500ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.contenedor__login-register form {
+  width: 100%;
+  padding: 60px 30px;
+  background: white;
+  position: absolute;
+  border-radius: 20px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.contenedor__login-register form h2 {
+  font-size: 30px;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #0055b8;
+  font-weight: 600;
+}
+
+.contenedor__login-register form input,
+.select__role {
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px;
+  border: none;
+  background: #f2f2f2;
+  font-size: 16px;
+  outline: none;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.contenedor__login-register form input:focus {
+  background: #e8f0fe;
+  box-shadow: 0 0 0 2px rgba(0, 85, 184, 0.2);
+}
+
+.contenedor__login-register form button {
+  padding: 15px 40px;
+  margin-top: 40px;
+  border: none;
+  font-size: 16px;
+  background: #0055b8;
+  font-weight: 600;
+  cursor: pointer;
+  color: white;
+  outline: none;
+  border-radius: 8px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.contenedor__login-register form button:hover {
+  background: #004299;
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 85, 184, 0.3);
+}
+
+.formulario__login {
+  opacity: 1;
+  display: block;
+}
+
+.formulario__register {
+  display: none;
+}
+
+@media screen and (max-width: 850px) {
+  main {
+    margin-top: 50px;
+  }
+
+  .caja__trasera {
+    max-width: 350px;
+    height: auto;
+    flex-direction: column;
+    margin: auto;
+    padding: 20px;
+  }
+
+  .caja__trasera div {
+    margin: 20px 0;
+    position: relative;
+  }
+
+  .contenedor__login-register {
+    top: -10px;
+    left: -5px;
+    margin: auto;
+  }
+
+  .contenedor__login-register form {
+    position: relative;
+  }
+}
+
+/* Personalización del fondo de las modales */
+.modal-content {
+  background-color: white;
+  color: #333;
+  border-radius: 15px;
+  border: none;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Títulos de las modales */
+.modal-title {
+  color: #0055b8;
+  font-weight: 700;
+}
+
+/* Fondo de las modales */
+.modal-backdrop.show {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+/* Estilo para los botones dentro de las modales */
+.modal-footer .btn {
+  background-color: #0055b8;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Hover en los botones */
+.modal-footer .btn:hover {
+  background-color: #004299;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 85, 184, 0.3);
+}
+
+/* Cabeceras uniformes */
+.modal-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  border-top-left-radius: 15px;
+  border-top-right-radius: 15px;
+  padding: 20px;
+}
+
+/* Modal de "Correo Ya Registrado" y otras modales */
+#correoYaRegistradoModal .modal-header,
+#registroExitosoModal .modal-header,
+#inicioSesionExitosoModal .modal-header,
+#correoContraseñaIncorrectosModal .modal-header {
+  background-color: #f8f9fa;
+}
+
+/* Mejorar el aspecto del texto dentro de las modales */
+.modal-body p {
+  font-size: 1.1rem;
+  color: #333;
+  line-height: 1.6;
+  margin: 15px 0;
+}
+
+/* Mejorar el aspecto del fondo y transiciones */
+.modal.fade .modal-dialog {
+  transition: transform 0.3s ease-out;
+}
+
+.modal.fade.show .modal-dialog {
+  transform: translateY(0);
+}
+
+/* Fondo de la página detrás de las modales */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Ajustes adicionales para la modal de "Correo o Contraseña Incorrectos" */
+#correoContraseñaIncorrectosModal .modal-body p {
+  color: #333;
+}
+
+/* Modal "Correo o Contraseña Incorrectos" - Títulos en blanco */
+#correoContraseñaIncorrectosModal .modal-title {
+  color: #0055b8;
+}
+

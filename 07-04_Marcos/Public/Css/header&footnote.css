@@ -1,0 +1,83 @@
+.social-icons a {
+  color: black;
+  font-size: 1.5rem;
+  margin-right: 15px;
+}
+
+.footer-text {
+  text-align: center;
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.politicas-link a {
+  color: rgb(120, 223, 188);
+}
+/* Cambiar botones a azules */
+.btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #0b5ed7;
+  border-color: #0a58ca;
+}
+
+.btn-dark {
+  background-color: #1a4b8c;
+  border-color: #1a4b8c;
+}
+
+.btn-dark:hover,
+.btn-dark:focus {
+  background-color: #153d75;
+  border-color: #12386b;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border-color: #6c757d;
+}
+
+.btn-secondary:hover,
+.btn-secondary:focus {
+  background-color: #5c636a;
+  border-color: #565e64;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+}
+
+.btn-danger:hover,
+.btn-danger:focus {
+  background-color: #bb2d3b;
+  border-color: #b02a37;
+}
+
+#Logoair-e {
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  line-height: 16px;
+  text-decoration: none;
+  word-spacing: 0px;
+
+  background-color: #ffffff;
+  background-position: 0% 0%;
+
+  height: 100px;
+  width: 218.75px;
+  max-height: 100px;
+  min-height: auto;
+  min-width: auto;
+
+  display: block;
+
+  overflow: clip;
+  cursor: pointer;
+}
+

@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Air-e Censo</title>
+  <link rel="icon" type="image/png" href="./Images/IconoAir-e.webp">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="./Css/header&footnote.css">
+  <link rel="stylesheet" href="./Css/dashboard.css">
+  <style>
+    /* Estilos para el sistema de notificaciones */
+    .notification-badge {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .notification-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #dc3545;
+      color: white;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .notification-dropdown {
+      width: 350px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .notification-item {
+      padding: 10px 15px;
+      border-bottom: 1px solid #e9ecef;
+      cursor: pointer;
+    }
+    
+    .notification-item:hover {
+      background-color: #f8f9fa;
+    }
+    
+    .notification-item.unread {
+      background-color: #e8f4ff;
+    }
+    
+    .notification-item .notification-time {
+      font-size: 12px;
+      color: #6c757d;
+    }
+    
+    .notification-item .notification-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .notification-item .notification-message {
+      font-size: 14px;
+      margin-bottom: 0;
+    }
+    
+    .notification-empty {
+      padding: 20px;
+      text-align: center;
+      color: #6c757d;
+    }
+    
+    /* Estilos para el poste seleccionado */
+    .selected-marker {
+      filter: hue-rotate(140deg) brightness(1.5);
+    }
+    
+    /* Estilos para el footer responsive */
+    @media (max-width: 768px) {
+      footer .container .row > div {
+        text-align: center !important;
+        margin-bottom: 20px;
+      }
+      
+      .social-icons {
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Barra de navegación principal -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow p-3">
+      <div class="container">
+          <a class="navbar-brand" href="../index.html">
+              <img src="./Images/LogoAir-e.webp" alt="Logo" width="130">
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav ms-auto">
+                  <li class="nav-item">
+                      <a class="nav-link active" href="#" id="navProyectos">Mis Proyectos</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="#" id="navNuevoCenso">
+                          <span id="proyectoTituloNav">Nuevo Censo</span>
+                      </a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="#" id="navHistorial">Historial</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="#" id="navPerfil">Mi Perfil</a>
+                  </li>
+                  <li class="nav-item dropdown">
+                      <a class="nav-link notification-badge" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                          <i class="bi bi-bell-fill"></i>
+                          <span class="notification-count" id="notificationCount">0</span>
+                      </a>
+                      <div class="dropdown-menu dropdown-menu-end notification-dropdown" aria-labelledby="notificationsDropdown">
+                          <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                              <h6 class="mb-0">Notificaciones</h6>
+                              <button class="btn btn-sm btn-link text-decoration-none" id="markAllAsRead">Marcar todas como leídas</button>
+                          </div>
+                          <div id="notificationsList">
+                              <!-- Se llenará dinámicamente -->
+                              <div class="notification-empty">
+                                  <i class="bi bi-bell-slash"></i>
+                                  <p>No tienes notificaciones</p>
+                              </div>
+                          </div>
+                      </div>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="#" id="cerrarSesion">Cerrar Sesión</a>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </nav>
+
+  <div class="container mt-4">
+      <!-- Sección de bienvenida -->
+      <div class="row mb-4">
+          <div class="col-md-12">
+              <div class="card bg-light">
+                  <div class="card-body">
+                      <h2 class="card-title">Bienvenido, <span id="nombreUsuario">Usuario</span></h2>
+                      <p class="card-text">
+                          <span id="nombreBrigada">Brigada</span> | 
+                          <span id="sectorUsuario">Sector</span>
+                      </p>
+                      <p class="card-text">Panel de control para la gestión de censos de postes.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Sección de Mis Proyectos -->
+      <div id="seccionProyectos" class="row">
+          <!-- Mapa de todos los proyectos -->
+          <div class="col-md-12 mb-4">
+              <div class="card">
+                  <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0">Vista general de proyectos</h5>
+                  </div>
+                  <div class="card-body">
+                      <div id="mapaProyectos" style="height: 400px;"></div>
+                  </div>
+              </div>
+          </div>
+          
+          <div class="col-md-12 mb-4">
+              <div class="d-flex justify-content-between align-items-center">
+                  <h3>Mis Proyectos Asignados</h3>
+                  <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="mostrarCompletados">
+                      <label class="form-check-label" for="mostrarCompletados">Mostrar completados</label>
+                  </div>
+              </div>
+              <div class="row mb-3">
+    <div class="col-md-3 mb-2">
+        <input type="text" class="form-control" id="filterNombre" placeholder="Filtrar por nombre">
+    </div>
+    <div class="col-md-3 mb-2">
+        <input type="text" class="form-control" id="filterPRST" placeholder="Filtrar por PRST">
+    </div>
+    <div class="col-md-3 mb-2">
+        <select class="form-select" id="filterFecha">
+            <option value="">Todas las fechas</option>
+            <!-- Se llenará dinámicamente -->
+        </select>
+    </div>
+    <div class="col-md-3 mb-2">
+        <select class="form-select" id="filterEstado">
+            <option value="">Todos los estados</option>
+            <option value="En Gestión">En Gestión</option>
+            <option value="Finalizado">Finalizado</option>
+            <option value="Documentación Errada">Documentación Errada</option>
+        </select>
+    </div>
+</div>
+              <div class="card">
+                  <div class="card-body">
+                      <div id="listaProyectos" class="row">
+                          <!-- Se llenará dinámicamente -->
+                          <div class="col-12 text-center py-5" id="sinProyectos">
+                              <p class="text-muted">No tienes proyectos asignados actualmente.</p>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Sección de Censo Actual -->
+      <div id="seccionNuevoCenso" class="row" style="display: none;">
+          <div class="col-md-12 mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h3 id="proyectoTitulo">Nuevo Censo</h3>
+              </div>
+              
+              <!-- Progreso del Proyecto -->
+              <div class="card mb-4">
+                  <div class="card-body">
+                      <div class="proyecto-progreso">
+                          <div class="progreso-info">
+                              <p class="progreso-texto"><i class="bi bi-clipboard-check"></i> <span id="postesCensados">0</span> de <span id="postesTotales">0</span> postes censados</p>
+                              <div class="progress">
+                                  <div id="barraProgreso" class="progress-bar bg-success" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0%</div>
+                              </div>
+                          </div>
+                          <button id="btnFinalizarProyecto" class="btn btn-primary btn-finalizar-proyecto">
+                              <i class="bi bi-check-circle"></i> Finalizar Proyecto
+                          </button>
+                      </div>
+                  </div>
+              </div>
+              
+              <!-- Mapa para seleccionar poste -->
+              <div class="card mb-4">
+                  <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0">Seleccione un poste en el mapa</h5>
+                  </div>
+                  <div class="card-body">
+                      <div id="mapa" style="height: 400px;"></div>
+                  </div>
+              </div>
+              
+              <!-- Formulario de censo -->
+              <div class="card">
+                  <div class="card-header bg-primary text-white">
+                      <h5 class="mb-0">Información del censo</h5>
+                  </div>
+                  <div class="card-body">
+                      <form id="formCenso">
+                          <input type="hidden" id="proyectoCenso">
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <div class="mb-3" id="fechaContainer">
+                                      <label for="fecha" class="form-label">Fecha</label>
+                                      <input type="date" id="fecha" class="form-control" readonly>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="numPoste" class="form-label">Número de Poste en el Plano</label>
+                                      <input type="text" id="numPoste" class="form-control" readonly>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="coordenada" class="form-label">Coordenada (lat, lon)</label>
+                                      <input type="text" id="coordenada" class="form-control" readonly>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label class="form-label">Elementos Existentes (Selección múltiple)</label>
+                                      <div class="elementos-existentes">
+                                          <div class="form-check">
+                                              <input class="form-check-input elemento-existente" type="checkbox" value="N/A" id="elementoNA">
+                                              <label class="form-check-label" for="elementoNA">N/A</label>
+                                          </div>
+                                          <div class="form-check">
+                                              <input class="form-check-input elemento-existente" type="checkbox" value="Cortacircuitos/Seccionador" id="elementoCortacircuitos">
+                                              <label class="form-check-label" for="elementoCortacircuitos">Cortacircuitos/Seccionador</label>
+                                          </div>
+                                          <div class="form-check">
+                                              <input class="form-check-input elemento-existente" type="checkbox" value="Transformador de Distribución" id="elementoTransformador">
+                                              <label class="form-check-label" for="elementoTransformador">Transformador de Distribución</label>
+                                          </div>
+                                          <div class="form-check">
+                                              <input class="form-check-input elemento-existente" type="checkbox" value="Interruptor de Potencia" id="elementoInterruptor">
+                                              <label class="form-check-label" for="elementoInterruptor">Interruptor de Potencia</label>
+                                          </div>
+                                          <div class="form-check">
+                                              <input class="form-check-input elemento-existente" type="checkbox" value="Reconectador" id="elementoReconectador">
+                                              <label class="form-check-label" for="elementoReconectador">Reconectador</label>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                              <div class="col-md-6">
+                                  <div class="mb-3">
+                                      <label for="tipoPoste" class="form-label">Tipo de Poste</label>
+                                      <select id="tipoPoste" class="form-select" required>
+                                          <option value="" selected>Seleccionar</option>
+                                          <option value="BT">BT</option>
+                                          <option value="MT">MT</option>
+                                          <option value="MT-BT">MT-BT</option>
+                                          <option value="Torre STR">Torre STR</option>
+                                          <option value="Sin identificar">Sin identificar</option>
+                                      </select>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="material" class="form-label">Material</label>
+                                      <select id="material" class="form-select" required>
+                                          <option value="" selected>Seleccionar</option>
+                                          <option value="MADERA">MADERA</option>
+                                          <option value="CONCRETO">CONCRETO</option>
+                                          <option value="FIBRA">FIBRA</option>
+                                          <option value="METALICO">METALICO</option>
+                                      </select>
+                                  </div>
+                                  <div class="mb-3">
+                                      <label for="altura" class="form-label">Altura</label>
+                                      <select id="altura" class="form-select" required>
+                                          <option value="" selected>Seleccionar</option>
+                                          <option value="8">8</option>
+                                          <option value="9">9</option>
+                                          <option value="10">10</option>
+                                          <option value="11">11</option>
+                                          <option value="12">12</option>
+                                          <option value="14">14</option>
+                                          <option value="16">16</option>
+                                          <option value="18">18</option>
+                                          <option value="25">25</option>
+                                      </select>
+                                  </div>
+                                  
+<div class="mb-3">
+    <label for="cantidadPostes" class="form-label">Cantidad de PRST</label>
+    <select id="cantidadPostes" class="form-select" onchange="generarFormulariosPostes()">
+        <option value="" selected>Seleccionar</option>
+        <option value="0">0</option>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+        <option value="6">6</option>
+        <option value="7">7</option>
+        <option value="8">8</option>
+        <option value="9">9</option>
+        <option value="10">10</option>
+    </select>
+</div>
+                                  <div class="mb-3">
+                                      <label for="observaciones" class="form-label">Observaciones</label>
+                                      <textarea id="observaciones" class="form-control" rows="3"></textarea>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div class="mb-3">
+                              <label class="form-label">Fotos</label>
+                              <div class="row">
+                                  <div class="col-md-4 mb-2">
+                                      <label for="fotoPanoramica" class="form-label">Foto Panorámica</label>
+                                      <input type="file" id="fotoPanoramica" class="form-control" accept=".png, .jpeg, .jpg" required>
+                                  </div>
+                                  <div class="col-md-4 mb-2">
+                                      <label for="fotoDetallada" class="form-label">Foto Detallada</label>
+                                      <input type="file" id="fotoDetallada" class="form-control" accept=".png, .jpeg, .jpg" required>
+                                  </div>
+                                  <div class="col-md-4 mb-2">
+                                      <label for="fotoPlaca" class="form-label">Foto de la Placa</label>
+                                      <input type="file" id="fotoPlaca" class="form-control" accept=".png, .jpeg, .jpg" required>
+                                  </div>
+                              </div>
+                          </div>
+
+                          <div id="postesContainer" class="mt-4">
+                              <!-- Aquí se generarán los formularios de PRST dinámicamente -->
+                          </div>
+
+                          <div class="d-flex justify-content-end mt-4">
+                              <button type="submit" class="btn btn-primary">
+                                  <i class="bi bi-save"></i> Guardar Censo
+                              </button>
+                          </div>
+                      </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Sección de Historial -->
+      <div id="seccionHistorial" class="row" style="display: none;">
+          <div class="col-md-12 mb-4">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h3>Historial de Censos</h3>
+              </div>
+              <div class="card">
+                  <div class="card-body">
+                      <div class="table-responsive">
+                          <table class="table table-striped">
+                              <thead>
+                                  <tr>
+                                      <th>ID</th>
+                                      <th>Proyecto</th>
+                                      <th>Fecha</th>
+                                      <th>Número de Poste</th>
+                                      <th>Coordenadas</th>
+                                      <th>Estado</th>
+                                      <th>Acciones</th>
+                                  </tr>
+                              </thead>
+                              <tbody id="tablaCensos">
+                                  <!-- Se llenará dinámicamente -->
+                              </tbody>
+                          </table>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+
+      <!-- Sección de Perfil -->
+      
+    <div id="seccionPerfil" class="row" style="display: none;">
+        <div class="col-md-12 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>Mi Perfil</h3>
+            </div>
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 text-center mb-4">
+                            <div class="avatar-container mb-3">
+                                <i class="bi bi-person-circle" style="font-size: 6rem;"></i>
+                            </div>
+                            <h4 id="perfilNombre">Nombre del Usuario</h4>
+                            <p class="text-muted" id="perfilBrigada">Nombre de Brigada</p>
+                            <p class="text-muted" id="perfilRol">Rol del Usuario</p>
+                            <p class="text-muted" id="perfilDepartamento" style="display: none;">Departamento: No asignado</p>
+                        </div>
+                        <div class="col-md-8">
+                            <form id="formPerfil">
+                                <div class="mb-3">
+                                    <label for="perfilUsuario" class="form-label">Nombre de Usuario</label>
+                                    <input type="text" id="perfilUsuario" class="form-control" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="perfilCorreo" class="form-label">Correo Electrónico</label>
+                                    <input type="email" id="perfilCorreo" class="form-control" readonly>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="perfilPassword" class="form-label">Contraseña</label>
+                                    <input type="password" id="perfilPassword" class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label for="perfilConfirmarPassword" class="form-label">Confirmar Contraseña</label>
+                                    <input type="password" id="perfilConfirmarPassword" class="form-control">
+                                </div>
+                                <button type="button" class="btn btn-primary" id="btnActualizarPerfil">
+                                    <i class="bi bi-save"></i> Actualizar Contraseña
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmación de selección de poste -->
+  <div class="modal fade" id="modalConfirmacionPoste" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title">Confirmar selección</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <p>¿Desea realizar un censo para el poste <strong id="nombrePosteSeleccionado"></strong>?</p>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-primary" id="btnConfirmarPoste">Confirmar</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Modal de finalización de proyecto -->
+  <div class="modal fade" id="modalFinalizarProyecto" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title">Finalizar proyecto</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <p>¿Está seguro de que desea finalizar el proyecto <strong id="nombreProyectoFinalizar"></strong>?</p>
+                  <p>Esta acción marcará el proyecto como completado y no podrá realizar más censos en él.</p>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="button" class="btn btn-primary" id="btnConfirmarFinalizarProyecto">Finalizar proyecto</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Modal para ver detalles del censo -->
+  <div class="modal fade" id="modalDetalleCenso" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title">Detalle del Censo</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body" id="detallesCensoContenido">
+                  <!-- Se llenará dinámicamente -->
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <!-- Modal para mensajes -->
+  <div class="modal fade" id="modalMensaje" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header bg-primary text-white">
+                  <h5 class="modal-title" id="tituloModalMensaje">Mensaje</h5>
+                  <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                  <p id="textoModalMensaje"></p>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+              </div>
+          </div>
+      </div>
+  </div>
+
+<!-- Añadir contenedores para mostrar Departamento y Cargo en el perfil -->
+<div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalPerfilLabel">Mi Perfil</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Nombre:</label>
+          <p id="perfilNombre" class="form-control-static"></p>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Usuario:</label>
+          <p id="perfilUsuario" class="form-control-static"></p>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Correo:</label>
+          <p id="perfilCorreo" class="form-control-static"></p>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Rol:</label>
+          <p id="perfilRol" class="form-control-static"></p>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Brigada:</label>
+          <p id="perfilBrigada" class="form-control-static"></p>
+        </div>
+        <div class="mb-3" id="perfilDepartamentoContainer" style="display: none;">
+          <label class="form-label">Departamento:</label>
+          <p id="perfilDepartamento" class="form-control-static"></p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Pie de página -->
+  <footer class="bg-white shadow p-3 mt-5">
+      <div class="container">
+          <div class="row">
+              <div class="col-md-4 col-sm-12 mb-3 text-center text-md-start">
+                  <img src="./Images/IconoAir-e.webp" alt="Ícono Air-e" width="80">
+                  <p><strong>Dirección:</strong><br>
+                  Cra 57 No 99A - 65<br>
+                  Torres del Atlántico.<br>
+                  Barranquilla, Atlántico.</p>
+              </div>
+              <div class="col-md-4 col-sm-12 mb-3 text-center">
+                  <p><strong class="text-primary">Líneas de atención:</strong><br>
+                  Fijo o celular: 115<br>
+                  Línea nacional gratuita: 018000 930 135<br>
+                  PBX Atlántico: (605) 361 1000<br>
+                  PBX Magdalena: (605) 423 7097<br>
+                  PBX Guajira: (605) 727 9814</p>
+              </div>
+              <div class="col-md-4 col-sm-12 mb-3 text-center text-md-end">
+                  <p><strong class="text-primary">Síguenos</strong></p>
+                  <div class="social-icons">
+                      <a href="#"><i class="bi bi-twitter-x"></i></a>
+                      <a href="#"><i class="bi bi-youtube"></i></a>
+                      <a href="#"><i class="bi bi-facebook"></i></a>
+                  </div>
+                  <p class="politicas-link"><a href="#">Políticas tratamiento de datos »</a></p>
+              </div>
+          </div>
+      </div>
+      <div class="footer-text text-center">
+          <p>&copy; 2025 Air-e Censo. Air-e intervenida 2024.</p>
+      </div>
+  </footer>
+
+  <!-- Añadir jQuery antes de Bootstrap -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Añadir JSZip antes del cierre del body -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="./Js/storage.js"></script>
+  <!-- Agregar el script de KML Handler antes del script de dashboard.js -->
+  <script src="./Js/kml-handler.js"></script>
+  <script>
+document.addEventListener("DOMContentLoaded", function() {
+  // Manage existing elements checkboxes
+  const elementoNA = document.getElementById("elementoNA");
+  
+  if (elementoNA) {
+    // Get all checkboxes
+    const checkboxes = document.querySelectorAll('.elemento-existente'); 
+    
+    // Event listener for NA checkbox
+    elementoNA.addEventListener("change", function() {
+      if (this.checked) {
+        // Uncheck and disable other checkboxes
+        checkboxes.forEach(checkbox => {
+          if (checkbox.id !== "elementoNA") {
+            checkbox.checked = false;
+            checkbox.disabled = true;
+          }
+        });
+      } else {
+        // Enable other checkboxes
+        checkboxes.forEach(checkbox => {
+          if (checkbox.id !== "elementoNA") {
+            checkbox.disabled = false;
+          }
+        });
+      }
+    });
+    
+    // Event listeners for other checkboxes
+    checkboxes.forEach(checkbox => {
+      if (checkbox.id !== "elementoNA") {
+        checkbox.addEventListener("change", function() {
+          if (this.checked) {
+            // Disable and uncheck NA checkbox
+            elementoNA.checked = false;
+            elementoNA.disabled = true;
+          } else {
+            // Check if any checkbox is still checked
+            const anyChecked = Array.from(checkboxes).some(cb => 
+              cb.id !== "elementoNA" && cb.checked
+            );
+            
+            // If none are checked, enable NA checkbox
+            if (!anyChecked) {
+              elementoNA.disabled = false;
+            }
+          }
+        });
+      }
+    });
+  }
+});
+</script>
+  <script src="./Js/brigada.js"></script>
+</body>
+</html>
+

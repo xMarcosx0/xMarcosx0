@@ -1,0 +1,8 @@
+quiero actualizar el rol de administrador, este rol no creara proyectos ni asignara proyectos, este rol creara y gestionara los usuarios, vera las solicitudes de contraseña, ademas que podra ver todos los proyectos creados y ver el historial cada proyecto, y los datos de cada proyecto, en la tabla de usuarios; quita el Brigada y Sector, esto se mostrara en un boton de "Ver detalles", ademas que al editar y crear usuario no debe pedir nombre de brigada ni cargo, si es rol Brigada debe pedir Sector(Cambiar nombre a Departamento) y solo puede elejir los 3 departamento, quita la opcion de Todas. Si es rol Ejecutiva, que se le agreguen los PRST que tiene a cargo. y quita la opcion de Trabajador
+
+En el rol PRST, cuando un proyecto ya esta asignado a Brigada o PRST, le debe salir tambien con el estado de "En gestion"
+cambia el estado de "Asignado" en todos los roles (Menos en PRST, en PRST se muestra lo que te dije antes)por esto:
+En Gestion por Analista, 1.1 Gestionado por Analista (Aprobado) 1.2 Gestionado por Analista con Observación (Se halla algún error)
+En Gestion por Brigada, 2.1 Gestionado por Brigada (Aprobado) 2.2 Gestionado por Brigada con Observación (Se halla algún error)
+Que el nombre de prst, en el perfil de PRST lo agarre directamente desde los que estan en el storage.js, el usuario jperez tendra el de Claro (Deben aparecer el nombre de PRST y nombre corto)
+

@@ -1,0 +1,435 @@
+/* Estilos para la interfaz de PRST */
+
+/* Variables de colores */
+:root {
+  --primary-color: #0055b8;
+  --primary-dark: #004299;
+  --primary-light: #e6f0ff;
+  --secondary-color: #ff9900;
+  --secondary-dark: #cc7a00;
+  --secondary-light: #ffe6cc;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --gray-color: #6c757d;
+  --gray-light: #e9ecef;
+  --gray-dark: #495057;
+  --white: #ffffff;
+  --black: #000000;
+}
+
+/* Estilos para el rol PRST */
+
+/* Estilos generales */
+body {
+  font-family: "Roboto", sans-serif;
+  background-color: #f8f9fa;
+}
+
+.container-fluid {
+  padding: 0;
+}
+
+/* Header */
+.header {
+  background-color: #343a40;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.header-logo {
+  display: flex;
+  align-items: center;
+}
+
+.header-logo img {
+  height: 40px;
+  margin-right: 10px;
+}
+
+.header-logo h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.header-actions .btn {
+  margin-left: 10px;
+}
+
+/* Estilos generales */
+body {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f7fa;
+}
+
+.container {
+  max-width: 1200px;
+}
+
+/* Estilos para las tarjetas */
+.card {
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgb(0, 38, 252);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  font-weight: 600;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+  padding: 15px 20px;
+}
+
+/* Contenido principal */
+.main-content {
+  padding: 20px;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Estilos para la barra de navegación */
+.navbar {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand img {
+  max-height: 40px;
+}
+
+/* Estilos para las notificaciones */
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 0.7rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notification-count {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: var(--danger-color);
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(50%, -50%);
+}
+
+/* Dropdown de notificaciones */
+.notifications-dropdown {
+  width: 300px;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-dropdown {
+  width: 320px;
+  padding: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.notification-item {
+  padding: 10px 15px;
+  border-bottom: 1px solid #e9ecef;
+  cursor: pointer;
+}
+
+.notification-item {
+  display: flex;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--gray-light);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.notification-item:hover {
+  background-color: #f8f9fa;
+}
+
+.notification-item:hover {
+  background-color: var(--light-color);
+}
+
+.notification-item.unread {
+  background-color: #e8f4ff;
+}
+
+.notification-unread {
+  background-color: var(--primary-light);
+}
+
+.notification-icon {
+  margin-right: 15px;
+  font-size: 1.2rem;
+  color: var(--primary-color);
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-content p {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.notification-content small {
+  color: var(--gray-color);
+  font-size: 12px;
+}
+
+.notification-message {
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.notification-time {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.notification-empty {
+  padding: 30px;
+  text-align: center;
+  color: var(--gray-color);
+}
+
+.notification-empty i {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.view-all-link {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Estilos para las tablas */
+.table {
+  vertical-align: middle;
+}
+
+.table th {
+  background-color: var(--light-color);
+  font-weight: 600;
+}
+
+/* Tabla de proyectos */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table th {
+  font-weight: 600;
+  background-color: #f8f9fa;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
+
+/* Estilos para los botones */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* Estilos para el perfil */
+.avatar-container {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-light);
+  border-radius: 50%;
+  color: var(--primary-color);
+}
+
+/* Estilos para los formularios */
+.form-label {
+  font-weight: 500;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(0, 85, 184, 0.25);
+}
+
+/* Formulario de proyecto */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.form-control {
+  border-radius: 4px;
+}
+
+.form-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Estilos para los barrios */
+#listaBarrios {
+  min-height: 40px;
+}
+
+/* Lista de barrios */
+.neighborhoods-container {
+  margin-top: 10px;
+}
+
+.neighborhoods-list {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.neighborhood-item {
+  display: flex;
+  align-items: center;
+  background-color: #e9ecef;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.neighborhood-item span {
+  margin-right: 10px;
+}
+
+/* Perfil */
+.profile-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.profile-item {
+  margin-bottom: 15px;
+}
+
+.profile-label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.profile-value {
+  color: #495057;
+}
+
+/* Estilos para los estados de proyectos */
+.badge {
+  padding: 6px 10px;
+  font-weight: 500;
+}
+
+/* Estilos para los documentos */
+.card-body .card {
+  transition: transform 0.2s ease;
+}
+
+.card-body .card:hover {
+  transform: translateY(-5px);
+}
+
+/* Footer */
+.footer {
+  background-color: #343a40;
+  color: white;
+  padding: 15px 20px;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Estilos para dispositivos móviles */
+@media (max-width: 768px) {
+  .notification-dropdown {
+    width: 280px;
+  }
+
+  .table-responsive {
+    font-size: 0.9rem;
+  }
+
+  .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+  }
+
+  .profile-info {
+    grid-template-columns: 1fr;
+  }
+
+  .header-logo h1 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Modal de notificaciones */
+.notifications-modal-body {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Alerta de observaciones */
+.alert-observations {
+  margin-bottom: 20px;
+  padding: 15px;
+  border-radius: 4px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  color: #856404;
+}
+
